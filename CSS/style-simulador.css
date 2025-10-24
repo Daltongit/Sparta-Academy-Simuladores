@@ -5,16 +5,19 @@
     padding: 0;
 }
 
-html, body {
-    height: 100%;
+/* --- CAMBIO 1: Eliminamos 'height: 100%' --- */
+html {
+    scroll-behavior: smooth;
 }
 
+/* --- CAMBIO 2: Cambiamos 'height: 100%' por 'min-height: 100vh' --- */
 body {
     font-family: 'Work Sans', Arial, sans-serif;
     background-color: #f0f2f5;
     color: #333;
     display: flex;
     flex-direction: column;
+    min-height: 100vh; /* Permite que el cuerpo crezca */
 }
 
 /* --- HEADER Y FOOTER (Compartidos) --- */
@@ -70,7 +73,9 @@ main {
     align-items: flex-start; /* Alinea arriba */
     padding: 2rem;
     position: relative;
-    overflow: hidden;
+    
+    /* --- CAMBIO 3: Eliminamos 'overflow: hidden' --- */
+    /* 'overflow: hidden;' HA SIDO ELIMINADO. Esto permite el scroll. */
 }
 
 /* --- PANTALLA 1: LOBBY --- */
@@ -142,6 +147,7 @@ main {
     display: none; /* Oculto por JS */
     grid-template-columns: 1fr 300px;
     gap: 2rem;
+    align-items: flex-start; /* Alinea la col. derecha arriba */
 }
 
 .quiz-col-izquierda {
@@ -443,20 +449,20 @@ main {
 /* Responsivo para móviles */
 @media (max-width: 900px) {
     #simulador-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Stacks quiz and nav */
     }
     .quiz-col-derecha {
-        position: static;
+        position: static; /* Un-sticks the nav */
         top: auto;
         margin-top: 2rem;
     }
     #navegador-preguntas {
-        grid-template-columns: repeat(10, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); /* Hace que se ajuste solo */
     }
 }
 @media (max-width: 600px) {
     main { padding: 1rem; }
     .quiz-col-izquierda, #lobby-container, #resultados-container { padding: 1.5rem; }
-    #navegador-preguntas { grid-template-columns: repeat(8, 1fr); }
     .estadisticas-grid { grid-template-columns: 1fr 1fr; }
+    .revision-header { flex-direction: column; align-items: flex-start; gap: 1rem;}
 }
