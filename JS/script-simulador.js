@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const preguntaNumero = document.getElementById('pregunta-numero');
     const preguntaTexto = document.getElementById('pregunta-texto');
     const opcionesContainer = document.getElementById('opciones-container');
-    // const navegadorPreguntas = document.getElementById('navegador-preguntas'); // Ya no se usa
-    // const anteriorBtn = document.getElementById('anterior-btn'); // Ya no se usa
+    const navegadorPreguntas = document.getElementById('navegador-preguntas'); // (HA VUELTO)
+    // const anteriorBtn = document.getElementById('anterior-btn'); // Sigue eliminado
     const siguienteBtn = document.getElementById('siguiente-btn');
     const terminarIntentoBtn = document.getElementById('terminar-intento-btn');
 
@@ -30,13 +30,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const revisionContainer = document.getElementById('revision-container');
     const reiniciarBtn = document.getElementById('reiniciar-btn');
 
+    // (NUEVO) Elementos del Modal
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalMensaje = document.getElementById('modal-mensaje');
+    const cancelarModalBtn = document.getElementById('cancelar-modal-btn');
+    const confirmarModalBtn = document.getElementById('confirmar-modal-btn');
+
     // --- 2. VARIABLES GLOBALES DEL SIMULADOR ---
-    let preguntasOriginales = [];      // Todas las preguntas (ej. 200)
-    let preguntasQuiz = [];            // Las 50 preguntas aleatorias para este intento
-    let respuestasUsuario = [];        // Array para guardar las respuestas (50 posiciones)
+    let preguntasOriginales = [];
+    let preguntasQuiz = [];
+    let respuestasUsuario = [];
     let indicePreguntaActual = 0;
     let cronometroInterval;
-    let tiempoRestanteSeg = 3600;      // 1 hora = 3600 segundos
+    let tiempoRestanteSeg = 3600;
     const TOTAL_PREGUNTAS = 50;
 
     const materias = {
@@ -48,30 +54,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. INICIALIZACIÓN ---
     function inicializar() {
-        // Obtener la materia de la URL (ej: simulador.html?materia=sociales)
         const params = new URLSearchParams(window.location.search);
-        const materiaKey = params.get('materia') || 'sociales'; // Default a sociales
+        const materiaKey = params.get('materia') || 'sociales';
         const nombreMateria = materias[materiaKey] || 'Desconocida';
 
-        // Configurar el Lobby
         tituloMateria.textContent = `SIMULADOR DE: ${nombreMateria.toUpperCase()}`;
         lobbyMateria.textContent = nombreMateria;
         
-        // Mostrar solo el lobby
         lobbyContainer.style.display = 'block';
         simuladorContainer.style.display = 'none';
         resultadosContainer.style.display = 'none';
 
-        // Cargar las preguntas de la materia seleccionada
         cargarPreguntas(materiaKey);
 
         // Listeners de botones
         comenzarBtn.addEventListener('click', iniciarIntento);
-        // anteriorBtn.addEventListener('click', irPreguntaAnterior); // ELIMINADO
         siguienteBtn.addEventListener('click', irPreguntaSiguiente);
-        terminarIntentoBtn.addEventListener('click', confirmarTerminarIntento);
+        terminarIntentoBtn.addEventListener('click', confirmarTerminarIntento); // (Ahora abre el modal)
         reiniciarBtn.addEventListener('click', () => {
-            window.location.href = 'index.html'; // Volver a la página principal
+            window.location.href = 'index.html';
+        });
+
+        // (NUEVO) Listeners del Modal
+        cancelarModalBtn.addEventListener('click', () => {
+            modalOverlay.style.display = 'none';
+        });
+        confirmarModalBtn.addEventListener('click', () => {
+            modalOverlay.style.display = 'none';
+            finalizarIntento(false); // false = finalizado por usuario
         });
     }
 
@@ -100,11 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function prepararQuiz() {
-        // Barajar todas las preguntas
         const preguntasBarajadas = [...preguntasOriginales].sort(() => Math.random() - 0.5);
-        // Tomar las primeras 50
         preguntasQuiz = preguntasBarajadas.slice(0, TOTAL_PREGUNTAS);
-        // Inicializar el array de respuestas del usuario
         respuestasUsuario = new Array(TOTAL_PREGUNTAS).fill(null);
     }
 
@@ -116,11 +123,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Ocultar lobby, mostrar simulador
         lobbyContainer.style.display = 'none';
-        simuladorContainer.style.display = 'grid'; // Usamos grid como en el CSS
+        simuladorContainer.style.display = 'grid'; 
 
-        // construirNavegador(); // ELIMINADO
+        construirNavegador(); // (HA VUELTO)
         mostrarPregunta(0);
         iniciarCronometro();
     }
@@ -132,37 +138,44 @@ document.addEventListener('DOMContentLoaded', () => {
             const minutos = Math.floor(tiempoRestanteSeg / 60);
             const segundos = tiempoRestanteSeg % 60;
             
-            // Formatear a MM:SS
             cronometroDisplay.textContent = 
                 `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
 
             if (tiempoRestanteSeg <= 0) {
-                finalizarIntento(true); // true = finalizado por tiempo
+                finalizarIntento(true);
             }
         }, 1000);
     }
 
-    // --- FUNCIÓN 'construirNavegador' ELIMINADA ---
+    // (HA VUELTO)
+    function construirNavegador() {
+        navegadorPreguntas.innerHTML = ''; // Limpiar
+        for (let i = 0; i < TOTAL_PREGUNTAS; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'nav-btn';
+            btn.textContent = i + 1;
+            btn.dataset.indice = i;
+            // IMPORTANTE: ¡No agregamos addEventListener!
+            // Es solo visual, no clickeable.
+            navegadorPreguntas.appendChild(btn);
+        }
+    }
 
     function mostrarPregunta(indice) {
-        // Validar índice
         if (indice < 0 || indice >= TOTAL_PREGUNTAS) return;
         
         indicePreguntaActual = indice;
         const pregunta = preguntasQuiz[indice];
 
-        // Actualizar textos
         preguntaNumero.textContent = `Pregunta ${indice + 1}`;
         preguntaTexto.textContent = pregunta.pregunta;
 
-        // Limpiar y crear opciones
         opcionesContainer.innerHTML = '';
         pregunta.opciones.forEach(opcion => {
             const btn = document.createElement('button');
             btn.className = 'opcion-btn';
-            btn.innerHTML = opcion; // Usar innerHTML por si hay formato
+            btn.innerHTML = opcion; 
             
-            // Marcar si ya fue seleccionada
             if (respuestasUsuario[indice] === opcion) {
                 btn.classList.add('selected');
             }
@@ -171,57 +184,76 @@ document.addEventListener('DOMContentLoaded', () => {
             opcionesContainer.appendChild(btn);
         });
 
-        // Actualizar botones de navegación
-        // anteriorBtn.disabled = (indice === 0); // ELIMINADO
-        
-        // Deshabilitar "Siguiente" en la última pregunta
         siguienteBtn.disabled = (indice === TOTAL_PREGUNTAS - 1);
 
-        // --- FUNCIÓN 'actualizarNavegadorVisual' ELIMINADA ---
+        actualizarNavegadorVisual(); // (HA VUELTO)
     }
 
     function seleccionarRespuesta(opcion) {
         respuestasUsuario[indicePreguntaActual] = opcion;
-        mostrarPregunta(indicePreguntaActual); // Volver a dibujar para mostrar selección
+        mostrarPregunta(indicePreguntaActual);
         
-        // --- CÓDIGO DE ACTUALIZAR NAV-BTN ELIMINADO ---
+        // (HA VUELTO) Marcar como "contestada" en el navegador
+        const navBtn = navegadorPreguntas.querySelector(`[data-indice="${indicePreguntaActual}"]`);
+        if (navBtn) {
+            navBtn.classList.add('answered');
+        }
     }
 
-    // --- FUNCIÓN 'actualizarNavegadorVisual' ELIMINADA ---
-
-    // --- FUNCIÓN 'irPreguntaAnterior' ELIMINADA ---
+    // (HA VUELTO)
+    function actualizarNavegadorVisual() {
+        const botones = navegadorPreguntas.querySelectorAll('.nav-btn');
+        botones.forEach(btn => {
+            btn.classList.remove('active');
+            if (parseInt(btn.dataset.indice) === indicePreguntaActual) {
+                btn.classList.add('active');
+            }
+        });
+    }
 
     function irPreguntaSiguiente() {
-        // Avanza solo si no es la última pregunta
         if (indicePreguntaActual < TOTAL_PREGUNTAS - 1) {
             mostrarPregunta(indicePreguntaActual + 1);
         }
     }
 
+    // (MODIFICADO)
     function confirmarTerminarIntento() {
         const enBlanco = respuestasUsuario.filter(r => r === null).length;
         let mensaje = "¿Estás seguro de que deseas terminar el intento?";
+        
         if (enBlanco > 0) {
-            mensaje += `\n\nTodavía tienes ${enBlanco} preguntas en blanco.`;
+            mensaje += `<br><br>Todavía tienes <strong>${enBlanco} preguntas en blanco.</strong>`;
         }
         
-        if (confirm(mensaje)) {
-            finalizarIntento(false); // false = finalizado por usuario
-        }
+        // Mostrar el modal personalizado
+        modalMensaje.innerHTML = mensaje;
+        modalOverlay.style.display = 'flex';
     }
 
     // --- 6. LÓGICA DE FINALIZACIÓN Y RESULTADOS ---
     function finalizarIntento(porTiempo = false) {
-        clearInterval(cronometroInterval); // Detener el cronómetro
+        clearInterval(cronometroInterval); 
         
         if (porTiempo) {
-            alert("¡Se acabó el tiempo! El intento ha finalizado.");
+            // (NUEVO) Usamos el modal para avisar que se acabó el tiempo
+            modalMensaje.innerHTML = "¡Se acabó el tiempo! El intento ha finalizado.";
+            modalOverlay.style.display = 'flex';
+            // Ocultamos los botones de cancelar/confirmar
+            document.querySelector('.modal-botones').style.display = 'none';
+            // Esperamos 3 segundos y luego mostramos resultados
+            setTimeout(() => {
+                modalOverlay.style.display = 'none';
+                mostrarResultadosPantalla();
+            }, 3000);
+        } else {
+            mostrarResultadosPantalla();
         }
-
-        // Ocultar simulador, mostrar resultados
+    }
+    
+    function mostrarResultadosPantalla() {
         simuladorContainer.style.display = 'none';
         resultadosContainer.style.display = 'block';
-
         calcularResultados();
     }
 
@@ -238,34 +270,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (respuestaUser === null) {
                 enBlanco++;
-                // puntaje += 0;
             } else if (respuestaUser === respuestaCorrecta) {
                 correctas++;
                 puntaje += 20; // +20 por correcta
             } else {
                 incorrectas++;
-                // puntaje -= 10; // <-- CAMBIO AQUÍ: Penalización eliminada
+                // Sin penalización
             }
         }
 
-        // Asegurar que el puntaje no sea negativo (Aunque ya no debería pasar, es buena práctica)
-        if (puntaje < 0) {
-            puntaje = 0;
-        }
+        if (puntaje < 0) puntaje = 0;
 
-        // Mostrar estadísticas
         puntajeFinalDisplay.textContent = puntaje;
         statsContestadas.textContent = correctas + incorrectas;
         statsCorrectas.textContent = correctas;
         statsIncorrectas.textContent = incorrectas;
         statsEnBlanco.textContent = enBlanco;
 
-        // Mostrar revisión
         mostrarRevision();
     }
 
     function mostrarRevision() {
-        revisionContainer.innerHTML = ''; // Limpiar
+        revisionContainer.innerHTML = ''; 
 
         preguntasQuiz.forEach((pregunta, i) => {
             const respuestaUser = respuestasUsuario[i];
