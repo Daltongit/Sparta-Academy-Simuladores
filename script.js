@@ -5,6 +5,7 @@ const temporizadorDisplay = document.getElementById('temporizador');
 const simuladorCont = document.getElementById('simulador-container');
 const resultadosCont = document.getElementById('resultados-container');
 const puntajeFinalDisplay = document.getElementById('puntaje-final');
+const reiniciarBtn = document.getElementById('reiniciar-btn');
 
 // --- 2. Variables del Simulador ---
 let preguntasBarajadas = [];
@@ -21,11 +22,18 @@ fetch('preguntas.json')
         // Esto cumple tu requisito de que sean aleatorias
         preguntasBarajadas = preguntas.sort(() => Math.random() - 0.5);
         iniciarSimulador();
+    })
+    .catch(error => {
+        console.error("¡Error al cargar las preguntas!", error);
+        preguntaTexto.textContent = "Error: No se pudo cargar el archivo preguntas.json. Revisa que el archivo exista y no tenga errores.";
     });
 
 function iniciarSimulador() {
     indicePreguntaActual = 0;
     puntaje = 0;
+    // Ocultar resultados y mostrar simulador (para reinicios)
+    resultadosCont.style.display = 'none';
+    simuladorCont.style.display = 'block';
     mostrarSiguientePregunta();
 }
 
@@ -105,4 +113,9 @@ function mostrarResultados() {
 
     // Muestra el puntaje, pero NO las respuestas correctas.
     puntajeFinalDisplay.textContent = `${puntaje} / ${preguntasBarajadas.length}`;
+    
+    // Añadimos el listener para el nuevo botón de reiniciar
+    reiniciarBtn.addEventListener('click', () => {
+        location.reload(); // La forma más fácil de reiniciar todo
+    });
 }
