@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sparta Academy - Simulador</title>
+    <link rel="stylesheet" href="CSS/style-simulador.css">
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600&family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <div class="header-logo">
+            <img src="logo.png" alt="Sparta Academy Logo">
+        </div>
+        <div class="header-titulo">
+            <h1>SPARTA ACADEMY</h1>
+            <h2 id="titulo-materia">SIMULADOR DE: ...</h2>
+        </div>
+    </header>
+
+    <main>
+        <div id="lobby-container">
+            <h1>Instrucciones del Simulacro</h1>
+            <div class="datos-informativos">
+                <p><strong>Materia:</strong> <span id="lobby-materia"></span></p>
+                <p><strong>Total de Preguntas:</strong> <span id="lobby-preguntas">50</span></p>
+                <p><strong>Tiempo Máximo:</strong> <span id="lobby-tiempo">1 Hora (60 Minutos)</span></p>
+                <p><strong>Calificación sobre:</strong> 1000 Puntos</p>
+            </div>
+            <hr>
+            <h3>Puntajes:</h3>
+            <ul>
+                <li>Respuesta Correcta: <strong>+20 Puntos</strong></li>
+                <li>Respuesta Incorrecta: <strong>-10 Puntos</strong> (Penalización)</li>
+                <li>Respuesta en Blanco: <strong>0 Puntos</strong></li>
+            </ul>
+            <button id="comenzar-btn">Comenzar Intento</button>
+        </div>
+
+        <div id="simulador-container">
+            <div class="quiz-col-izquierda">
+                <div class="pregunta-header">
+                    <span id="pregunta-numero" class="pregunta-num-tag">Pregunta 1</span>
+                    <h2 id="pregunta-texto">Cargando pregunta...</h2>
+                </div>
+                
+                <div id="opciones-container">
+                    </div>
+
+                <div class="quiz-navegacion">
+                    <button id="anterior-btn">Anterior</button>
+                    <button id="siguiente-btn">Siguiente</button>
+                </div>
+            </div>
+
+            <div class="quiz-col-derecha">
+                <div class="timer-box">
+                    <h3>Tiempo Restante</h3>
+                    <div id="cronometro">60:00</div>
+                </div>
+                <div class="navegador-box">
+                    <h3>Preguntas</h3>
+                    <div id="navegador-preguntas">
+                        </div>
+                </div>
+                <button id="terminar-intento-btn">Terminar Intento</button>
+            </div>
+        </div>
+
+        <div id="resultados-container">
+            <h2>¡Simulacro Terminado!</h2>
+            <p>Estos son tus resultados:</p>
+            
+            <div class="puntaje-final-box">
+                <h3>Puntaje Total</h3>
+                <h1 id="puntaje-final">0</h1>
+                <p>sobre 1000 Puntos</p>
+            </div>
+
+            <div class="estadisticas-grid">
+                <div>
+                    <h4>Contestadas</h4>
+                    <p id="stats-contestadas">0</p>
+                </div>
+                <div>
+                    <h4>Correctas</h4>
+                    <p id="stats-correctas">0</p>
+                </div>
+                <div>
+                    <h4>Incorrectas</h4>
+                    <p id="stats-incorrectas">0</p>
+                </div>
+                <div>
+                    <h4>En Blanco</h4>
+                    <p id="stats-en-blanco">0</p>
+                </div>
+            </div>
+
+            <hr>
+            
+            <div class="revision-header">
+                <h3>Revisión de Respuestas</h3>
+                <button id="reiniciar-btn">Volver al Inicio</button>
+            </div>
+            <div id="revision-container">
+                </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>Dir: Calle Bolívar entre Boyacá y Junín</p>
+        <p>Cell: 0989746618 / 0984541920 / 0987451775</p>
+        <p>Email: spartatulcan@gmail.com</p>
+    </footer>
+
+    <script src="JS/script-simulador.js"></script>
+</body>
+</html>
