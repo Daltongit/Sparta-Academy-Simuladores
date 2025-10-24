@@ -32,9 +32,10 @@
             <h3>Puntajes:</h3>
             <ul>
                 <li>Respuesta Correcta: <strong>+20 Puntos</strong></li>
-                <li>Respuesta Incorrecta: <strong>-10 Puntos</strong> (Penalización)</li>
+                <li>Respuesta Incorrecta: <strong>0 Puntos</strong></li>
                 <li>Respuesta en Blanco: <strong>0 Puntos</strong></li>
             </ul>
+            <p style="margin-top: 1rem; font-weight: 600;"><strong>Importante:</strong> Este intento es lineal. Una vez que presione "Siguiente", no podrá regresar a la pregunta anterior.</p>
             <button id="comenzar-btn">Comenzar Intento</button>
         </div>
 
@@ -49,7 +50,6 @@
                     </div>
 
                 <div class="quiz-navegacion">
-                    <button id="anterior-btn">Anterior</button>
                     <button id="siguiente-btn">Siguiente</button>
                 </div>
             </div>
@@ -58,11 +58,6 @@
                 <div class="timer-box">
                     <h3>Tiempo Restante</h3>
                     <div id="cronometro">60:00</div>
-                </div>
-                <div class="navegador-box">
-                    <h3>Preguntas</h3>
-                    <div id="navegador-preguntas">
-                        </div>
                 </div>
                 <button id="terminar-intento-btn">Terminar Intento</button>
             </div>
