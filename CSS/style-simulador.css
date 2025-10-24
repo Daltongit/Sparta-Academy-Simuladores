@@ -5,19 +5,17 @@
     padding: 0;
 }
 
-/* --- CAMBIO 1: Eliminamos 'height: 100%' --- */
 html {
     scroll-behavior: smooth;
 }
 
-/* --- CAMBIO 2: Cambiamos 'height: 100%' por 'min-height: 100vh' --- */
 body {
     font-family: 'Work Sans', Arial, sans-serif;
     background-color: #f0f2f5;
     color: #333;
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Permite que el cuerpo crezca */
+    min-height: 100vh; /* Correcto */
 }
 
 /* --- HEADER Y FOOTER (Compartidos) --- */
@@ -67,15 +65,12 @@ footer p {
 
 /* --- CONTENIDO PRINCIPAL --- */
 main {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Alinea arriba */
+    flex: 1; /* Correcto: empuja el footer hacia abajo */
     padding: 2rem;
     position: relative;
     
-    /* --- CAMBIO 3: Eliminamos 'overflow: hidden' --- */
-    /* 'overflow: hidden;' HA SIDO ELIMINADO. Esto permite el scroll. */
+    /* === LA CORRECCIÓN ESTÁ AQUÍ === */
+    /* Quitamos display: flex, justify-content, align-items y overflow */
 }
 
 /* --- PANTALLA 1: LOBBY --- */
@@ -89,6 +84,9 @@ main {
     position: relative;
     z-index: 1;
     border-top: 5px solid #b22222;
+    
+    /* === LA CORRECCIÓN ESTÁ AQUÍ === */
+    margin: 0 auto; /* Lo centramos horizontalmente */
 }
 
 #lobby-container h1 {
@@ -148,6 +146,9 @@ main {
     grid-template-columns: 1fr 300px;
     gap: 2rem;
     align-items: flex-start; /* Alinea la col. derecha arriba */
+    
+    /* === LA CORRECCIÓN ESTÁ AQUÍ === */
+    margin: 0 auto; /* Lo centramos horizontalmente */
 }
 
 .quiz-col-izquierda {
@@ -326,6 +327,9 @@ main {
     position: relative;
     z-index: 1;
     border-top: 5px solid #b22222;
+    
+    /* === LA CORRECCIÓN ESTÁ AQUÍ === */
+    margin: 0 auto; /* Lo centramos horizontalmente */
 }
 
 #resultados-container h2 {
