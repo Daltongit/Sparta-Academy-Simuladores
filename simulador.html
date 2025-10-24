@@ -59,6 +59,13 @@
                     <h3>Tiempo Restante</h3>
                     <div id="cronometro">60:00</div>
                 </div>
+                
+                <div class="navegador-box">
+                    <h3>Preguntas</h3>
+                    <div id="navegador-preguntas">
+                        </div>
+                </div>
+
                 <button id="terminar-intento-btn">Terminar Intento</button>
             </div>
         </div>
@@ -103,6 +110,17 @@
         </div>
 
     </main>
+
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Terminar Intento</h2>
+            <p id="modal-mensaje">¿Estás seguro de que deseas terminar el intento?</p>
+            <div class="modal-botones">
+                <button id="cancelar-modal-btn" class="modal-btn-cancelar">Cancelar</button>
+                <button id="confirmar-modal-btn" class="modal-btn-confirmar">Confirmar</button>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <p>Dir: Calle Bolívar entre Boyacá y Junín</p>
