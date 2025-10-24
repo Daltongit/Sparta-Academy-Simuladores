@@ -7,7 +7,7 @@
 
 html {
     scroll-behavior: smooth;
-    overflow-y: auto; /* <-- AÑADIDO PARA FORZAR SCROLL */
+    overflow-y: auto; 
 }
 
 body {
@@ -17,7 +17,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh; 
-    overflow-y: visible; /* <-- AÑADIDO PARA FORZAR SCROLL */
+    overflow-y: visible; 
 }
 
 /* --- HEADER Y FOOTER (Compartidos) --- */
@@ -113,7 +113,7 @@ main {
 
 #lobby-container ul {
     list-style-position: inside;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     line-height: 1.7;
 }
 
@@ -129,6 +129,7 @@ main {
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s;
+    margin-top: 2rem;
 }
 
 #comenzar-btn:hover {
@@ -209,7 +210,7 @@ main {
 
 .quiz-navegacion {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end; /* <-- CAMBIO AQUÍ: Mueve el botón "Siguiente" a la derecha */
     border-top: 1px solid #eee;
     padding-top: 1.5rem;
 }
@@ -265,6 +266,7 @@ main {
     font-weight: 600;
 }
 
+/* El navegador de preguntas ya no existe, pero dejamos los estilos por si acaso */
 #navegador-preguntas {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -284,12 +286,12 @@ main {
 }
 
 .nav-btn.answered {
-    background-color: #e0f0ff; /* Azul claro para contestada */
+    background-color: #e0f0ff; 
     border-color: #007bff;
 }
 
 .nav-btn.active {
-    background-color: #b22222; /* Rojo para activa */
+    background-color: #b22222; 
     color: white;
     border-color: #b22222;
 }
