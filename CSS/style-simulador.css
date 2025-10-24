@@ -7,6 +7,7 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-y: auto; /* <-- AÑADIDO PARA FORZAR SCROLL */
 }
 
 body {
@@ -15,7 +16,8 @@ body {
     color: #333;
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Correcto */
+    min-height: 100vh; 
+    overflow-y: visible; /* <-- AÑADIDO PARA FORZAR SCROLL */
 }
 
 /* --- HEADER Y FOOTER (Compartidos) --- */
@@ -65,12 +67,9 @@ footer p {
 
 /* --- CONTENIDO PRINCIPAL --- */
 main {
-    flex: 1; /* Correcto: empuja el footer hacia abajo */
+    flex: 1; 
     padding: 2rem;
     position: relative;
-    
-    /* === LA CORRECCIÓN ESTÁ AQUÍ === */
-    /* Quitamos display: flex, justify-content, align-items y overflow */
 }
 
 /* --- PANTALLA 1: LOBBY --- */
@@ -84,9 +83,7 @@ main {
     position: relative;
     z-index: 1;
     border-top: 5px solid #b22222;
-    
-    /* === LA CORRECCIÓN ESTÁ AQUÍ === */
-    margin: 0 auto; /* Lo centramos horizontalmente */
+    margin: 0 auto; /* Centrado horizontal */
 }
 
 #lobby-container h1 {
@@ -145,10 +142,8 @@ main {
     display: none; /* Oculto por JS */
     grid-template-columns: 1fr 300px;
     gap: 2rem;
-    align-items: flex-start; /* Alinea la col. derecha arriba */
-    
-    /* === LA CORRECCIÓN ESTÁ AQUÍ === */
-    margin: 0 auto; /* Lo centramos horizontalmente */
+    align-items: flex-start; 
+    margin: 0 auto; /* Centrado horizontal */
 }
 
 .quiz-col-izquierda {
@@ -327,9 +322,7 @@ main {
     position: relative;
     z-index: 1;
     border-top: 5px solid #b22222;
-    
-    /* === LA CORRECCIÓN ESTÁ AQUÍ === */
-    margin: 0 auto; /* Lo centramos horizontalmente */
+    margin: 0 auto; /* Centrado horizontal */
 }
 
 #resultados-container h2 {
