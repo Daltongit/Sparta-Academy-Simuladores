@@ -5,19 +5,17 @@
     padding: 0;
 }
 
-/* --- CAMBIO 1: Eliminamos 'height: 100%' --- */
 html {
     scroll-behavior: smooth;
 }
 
-/* --- CAMBIO 2: Cambiamos 'height: 100%' por 'min-height: 100vh' --- */
 body {
     font-family: 'Work Sans', Arial, sans-serif;
     background-color: #f0f2f5;
     color: #333;
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Permite que el cuerpo crezca si el contenido es largo */
+    min-height: 100vh; /* Correcto: el body mide al menos el alto de la pantalla */
 }
 
 /* --- HEADER Y FOOTER (Compartidos) --- */
@@ -67,15 +65,12 @@ footer p {
 
 /* --- CONTENIDO PRINCIPAL --- */
 main {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    flex: 1; /* Correcto: empuja el footer hacia abajo */
     padding: 2rem;
     position: relative;
     
-    /* --- CAMBIO 3: Eliminamos 'overflow: hidden' --- */
-    /* 'overflow: hidden;' HA SIDO ELIMINADO. Esto permite el scroll. */
+    /* === LA CORRECCIÓN ESTÁ AQUÍ === */
+    /* Quitamos display: flex, justify-content, align-items y overflow */
 }
 
 /* --- MARCA DE AGUA --- */
@@ -87,6 +82,7 @@ main {
     z-index: 0;
     opacity: 0.06;
     pointer-events: none;
+    position: fixed; /* Para que no moleste con el scroll */
 }
 
 .marca-de-agua img {
@@ -105,6 +101,9 @@ main {
     position: relative;
     z-index: 1;
     border-top: 5px solid #b22222;
+    
+    /* === LA CORRECCIÓN ESTÁ AQUÍ === */
+    margin: 0 auto; /* Lo centramos horizontalmente */
 }
 
 .seleccion-container h1 {
@@ -156,7 +155,6 @@ main {
 @media (max-width: 600px) {
     main {
         padding: 1.5rem 1rem; /* Más espacio en móviles */
-        align-items: flex-start; /* Alinea arriba en móviles */
     }
     .materias-grid {
         grid-template-columns: 1fr;
