@@ -210,7 +210,7 @@ main {
 
 .quiz-navegacion {
     display: flex;
-    justify-content: flex-end; /* <-- CAMBIO AQUÍ: Mueve el botón "Siguiente" a la derecha */
+    justify-content: flex-end; /* Mueve el botón "Siguiente" a la derecha */
     border-top: 1px solid #eee;
     padding-top: 1.5rem;
 }
@@ -253,6 +253,11 @@ main {
     margin-bottom: 1.5rem;
 }
 
+/* ESTILOS DEL NAVEGADOR (HAN VUELTO) */
+.navegador-box {
+    margin-bottom: 1.5rem;
+}
+
 .timer-box h3, .navegador-box h3 {
     font-family: 'Teko', sans-serif;
     font-size: 1.6rem;
@@ -266,7 +271,6 @@ main {
     font-weight: 600;
 }
 
-/* El navegador de preguntas ya no existe, pero dejamos los estilos por si acaso */
 #navegador-preguntas {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -281,8 +285,8 @@ main {
     border: 1px solid #ccc;
     border-radius: 5px;
     background-color: #f9f9f9;
-    cursor: pointer;
     font-weight: 600;
+    cursor: default; /* Ya no es clickeable */
 }
 
 .nav-btn.answered {
@@ -298,7 +302,6 @@ main {
 
 #terminar-intento-btn {
     width: 100%;
-    margin-top: 1.5rem;
     padding: 0.8rem;
     font-size: 1.1rem;
     font-weight: 700;
@@ -445,6 +448,79 @@ main {
     font-weight: normal;
 }
 
+
+/* --- (NUEVO) MODAL DE CONFIRMACIÓN --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none; /* Oculto por defecto */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-box {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    border-top: 5px solid #b22222;
+}
+
+.modal-box h2 {
+    font-family: 'Teko', sans-serif;
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+}
+
+.modal-box p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.modal-botones {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.modal-botones button {
+    flex: 1;
+    padding: 0.7rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+.modal-btn-cancelar {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    color: #333;
+}
+.modal-btn-cancelar:hover {
+    background-color: #e0e0e0;
+}
+
+.modal-btn-confirmar {
+    background-color: #b22222;
+    color: white;
+}
+.modal-btn-confirmar:hover {
+    background-color: #8B0000;
+}
+
+
 /* Responsivo para móviles */
 @media (max-width: 900px) {
     #simulador-container {
@@ -464,4 +540,5 @@ main {
     .quiz-col-izquierda, #lobby-container, #resultados-container { padding: 1.5rem; }
     .estadisticas-grid { grid-template-columns: 1fr 1fr; }
     .revision-header { flex-direction: column; align-items: flex-start; gap: 1rem;}
+    .modal-box { width: 90%; }
 }
