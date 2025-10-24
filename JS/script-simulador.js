@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const preguntaNumero = document.getElementById('pregunta-numero');
     const preguntaTexto = document.getElementById('pregunta-texto');
     const opcionesContainer = document.getElementById('opciones-container');
-    const navegadorPreguntas = document.getElementById('navegador-preguntas');
-    const anteriorBtn = document.getElementById('anterior-btn');
+    // const navegadorPreguntas = document.getElementById('navegador-preguntas'); // Ya no se usa
+    // const anteriorBtn = document.getElementById('anterior-btn'); // Ya no se usa
     const siguienteBtn = document.getElementById('siguiente-btn');
     const terminarIntentoBtn = document.getElementById('terminar-intento-btn');
 
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Listeners de botones
         comenzarBtn.addEventListener('click', iniciarIntento);
-        anteriorBtn.addEventListener('click', irPreguntaAnterior);
+        // anteriorBtn.addEventListener('click', irPreguntaAnterior); // ELIMINADO
         siguienteBtn.addEventListener('click', irPreguntaSiguiente);
         terminarIntentoBtn.addEventListener('click', confirmarTerminarIntento);
         reiniciarBtn.addEventListener('click', () => {
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lobbyContainer.style.display = 'none';
         simuladorContainer.style.display = 'grid'; // Usamos grid como en el CSS
 
-        construirNavegador();
+        // construirNavegador(); // ELIMINADO
         mostrarPregunta(0);
         iniciarCronometro();
     }
@@ -142,17 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    function construirNavegador() {
-        navegadorPreguntas.innerHTML = ''; // Limpiar
-        for (let i = 0; i < TOTAL_PREGUNTAS; i++) {
-            const btn = document.createElement('button');
-            btn.className = 'nav-btn';
-            btn.textContent = i + 1;
-            btn.dataset.indice = i; // Guardar el índice
-            btn.addEventListener('click', () => mostrarPregunta(i));
-            navegadorPreguntas.appendChild(btn);
-        }
-    }
+    // --- FUNCIÓN 'construirNavegador' ELIMINADA ---
 
     function mostrarPregunta(indice) {
         // Validar índice
@@ -182,45 +172,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Actualizar botones de navegación
-        anteriorBtn.disabled = (indice === 0);
+        // anteriorBtn.disabled = (indice === 0); // ELIMINADO
+        
+        // Deshabilitar "Siguiente" en la última pregunta
         siguienteBtn.disabled = (indice === TOTAL_PREGUNTAS - 1);
 
-        // Actualizar navegador visual
-        actualizarNavegadorVisual();
+        // --- FUNCIÓN 'actualizarNavegadorVisual' ELIMINADA ---
     }
 
     function seleccionarRespuesta(opcion) {
         respuestasUsuario[indicePreguntaActual] = opcion;
         mostrarPregunta(indicePreguntaActual); // Volver a dibujar para mostrar selección
         
-        // Marcar como "contestada" en el navegador
-        const navBtn = navegadorPreguntas.querySelector(`[data-indice="${indicePreguntaActual}"]`);
-        if (navBtn) {
-            navBtn.classList.add('answered');
-        }
-
-        // (Opcional) Avanzar automáticamente
-        // if(indicePreguntaActual < TOTAL_PREGUNTAS - 1) {
-        //     irPreguntaSiguiente();
-        // }
+        // --- CÓDIGO DE ACTUALIZAR NAV-BTN ELIMINADO ---
     }
 
-    function actualizarNavegadorVisual() {
-        const botones = navegadorPreguntas.querySelectorAll('.nav-btn');
-        botones.forEach(btn => {
-            btn.classList.remove('active');
-            if (parseInt(btn.dataset.indice) === indicePreguntaActual) {
-                btn.classList.add('active');
-            }
-        });
-    }
+    // --- FUNCIÓN 'actualizarNavegadorVisual' ELIMINADA ---
 
-    function irPreguntaAnterior() {
-        mostrarPregunta(indicePreguntaActual - 1);
-    }
+    // --- FUNCIÓN 'irPreguntaAnterior' ELIMINADA ---
 
     function irPreguntaSiguiente() {
-        mostrarPregunta(indicePreguntaActual + 1);
+        // Avanza solo si no es la última pregunta
+        if (indicePreguntaActual < TOTAL_PREGUNTAS - 1) {
+            mostrarPregunta(indicePreguntaActual + 1);
+        }
     }
 
     function confirmarTerminarIntento() {
@@ -269,11 +244,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 puntaje += 20; // +20 por correcta
             } else {
                 incorrectas++;
-                puntaje -= 10; // -10 por incorrecta
+                // puntaje -= 10; // <-- CAMBIO AQUÍ: Penalización eliminada
             }
         }
 
-        // Asegurar que el puntaje no sea negativo
+        // Asegurar que el puntaje no sea negativo (Aunque ya no debería pasar, es buena práctica)
         if (puntaje < 0) {
             puntaje = 0;
         }
@@ -302,20 +277,20 @@ document.addEventListener('DOMContentLoaded', () => {
             let feedbackHTML = '';
             if (respuestaUser === null) {
                 feedbackHTML = `
-                    <p class="respuesta-usuario">No contestada</p>
+                    <p class="respuesta-usuario">No contestada (0 Puntos)</p>
                     <div class="feedback incorrecta">
-                        INCORRECTA
+                        RESPUESTA
                         <span>La respuesta correcta era: <strong>${respuestaCorrecta}</strong></span>
                     </div>`;
             } else if (respuestaUser === respuestaCorrecta) {
                 feedbackHTML = `
                     <p class="respuesta-usuario">Tu respuesta: ${respuestaUser}</p>
-                    <div class="feedback correcta">CORRECTA</div>`;
+                    <div class="feedback correcta">CORRECTA (+20 Puntos)</div>`;
             } else {
                 feedbackHTML = `
                     <p class="respuesta-usuario">Tu respuesta: ${respuestaUser}</p>
                     <div class="feedback incorrecta">
-                        INCORRECTA
+                        INCORRECTA (0 Puntos)
                         <span>La respuesta correcta era: <strong>${respuestaCorrecta}</strong></span>
                     </div>`;
             }
