@@ -1,0 +1,22 @@
+[
+  {
+    "pregunta": "El río Guayas es el principal sistema fluvial de la región Sierra.",
+    "opciones": ["Verdadero", "Falso"],
+    "respuesta": "Falso"
+  },
+  {
+    "pregunta": "El Ecuador formó parte de la Gran Colombia hasta 1830.",
+    "opciones": ["Verdadero", "Falso"],
+    "respuesta": "Verdadero"
+  },
+  {
+    "pregunta": "¿Cuál fue el principal producto de exportación del Ecuador durante el siglo XIX?",
+    "opciones": ["Petróleo", "Banano", "Cacao", "Café"],
+    "respuesta": "Cacao"
+  },
+  {
+    "pregunta": "¿Quién fue el primer presidente del Ecuador tras su independencia?",
+    "opciones": ["Vicente Rocafuerte", "Gabriel García Moreno", "Juan José Flores", "Eloy Alfaro"],
+    "respuesta": "Juan José Flores"
+  }
+]

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador C.C. Sociales</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="simulador-container">
+        <div id="temporizador">15</div>
+
+        <h2 id="pregunta-texto"></h2>
+
+        <div id="opciones-container">
+            </div>
+
+        <button id="siguiente-btn">Siguiente</button>
+    </div>
+
+    <div id="resultados-container" style="display: none;">
+        <h2>¡Simulacro Terminado!</h2>
+        <p>Tu puntaje final es:</p>
+        <h1 id="puntaje-final"></h1>
+        <button onclick="location.reload()">Intentar de Nuevo</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
