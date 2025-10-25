@@ -21,18 +21,33 @@
             <h1>SPARTA ACADEMY</h1>
             <h2 id="titulo-materia">SIMULADOR DE: ...</h2>
         </div>
-         <div class="user-info-container">
-            <span id="user-name-display">Aspirante: Cargando...</span>
+
+         <div class="user-info-container desktop-only">
+            <span id="user-name-display-desktop">Aspirante: Cargando...</span>
             <div class="dropdown">
                 <button class="dropdown-btn">▼</button>
                 <div class="dropdown-content">
-                    <a href="#" id="logout-button">Cerrar Sesión</a>
+                    <a href="#" id="logout-button-desktop">Cerrar Sesión</a>
                 </div>
             </div>
         </div>
+
+        <button class="hamburger-menu mobile-only" id="hamburger-btn">☰</button>
     </header>
 
-    <main>
+     <div class="side-nav" id="side-nav">
+        <button class="close-nav-btn" id="close-nav-btn">&times;</button>
+        <div class="side-nav-header">
+             <img src="logo.png" alt="Sparta Logo" class="side-nav-logo">
+             <h3>Menú Aspirante</h3>
+        </div>
+        <div class="side-nav-user">
+            <p>Aspirante:</p>
+            <p><strong id="user-name-display-mobile">Cargando...</strong></p>
+        </div>
+        <a href="#" id="logout-button-mobile" class="side-nav-link">Cerrar Sesión</a>
+    </div>
+    <div class="overlay" id="overlay"></div> <main>
         <div id="lobby-container">
             <h1>Instrucciones del Simulacro</h1>
             <div class="datos-informativos">
@@ -58,27 +73,20 @@
                     <span id="pregunta-numero" class="pregunta-num-tag">Pregunta 1</span>
                     <h2 id="pregunta-texto">Cargando pregunta...</h2>
                 </div>
-                
-                <div id="opciones-container">
-                    </div>
-
+                <div id="opciones-container"></div>
                 <div class="quiz-navegacion">
                     <button id="siguiente-btn">Siguiente</button>
                 </div>
             </div>
-
             <div class="quiz-col-derecha">
                 <div class="timer-box">
                     <h3>Tiempo Restante</h3>
                     <div id="cronometro">60:00</div>
                 </div>
-                
                 <div class="navegador-box">
                     <h3>Preguntas</h3>
-                    <div id="navegador-preguntas">
-                        </div>
+                    <div id="navegador-preguntas"></div>
                 </div>
-
                 <button id="terminar-intento-btn">Terminar Intento</button>
             </div>
         </div>
@@ -86,48 +94,30 @@
         <div id="resultados-container">
             <h2>¡Simulacro Terminado!</h2>
             <p>Estos son tus resultados:</p>
-            
             <div class="puntaje-final-box">
                 <h3>Puntaje Total</h3>
                 <h1 id="puntaje-final">0</h1>
                 <p>sobre 1000 Puntos</p>
             </div>
-
             <div class="estadisticas-grid">
-                <div>
-                    <h4>Contestadas</h4>
-                    <p id="stats-contestadas">0</p>
-                </div>
-                <div>
-                    <h4>Correctas</h4>
-                    <p id="stats-correctas">0</p>
-                </div>
-                <div>
-                    <h4>Incorrectas</h4>
-                    <p id="stats-incorrectas">0</p>
-                </div>
-                <div>
-                    <h4>En Blanco</h4>
-                    <p id="stats-en-blanco">0</p>
-                </div>
+                <div><h4>Contestadas</h4><p id="stats-contestadas">0</p></div>
+                <div><h4>Correctas</h4><p id="stats-correctas">0</p></div>
+                <div><h4>Incorrectas</h4><p id="stats-incorrectas">0</p></div>
+                <div><h4>En Blanco</h4><p id="stats-en-blanco">0</p></div>
             </div>
-
             <hr>
-            
             <div class="revision-header">
                 <h3>Revisión de Respuestas</h3>
                 <button id="reiniciar-btn">Volver al Inicio</button>
             </div>
-            <div id="revision-container">
-                </div>
+            <div id="revision-container"></div>
         </div>
-
     </main>
 
     <div id="modal-overlay" class="modal-overlay">
         <div class="modal-box">
             <h2>Terminar Intento</h2>
-            <p id="modal-mensaje">¿Estás seguro de que deseas terminar el intento?</p>
+            <p id="modal-mensaje">¿Estás seguro?</p>
             <div class="modal-botones">
                 <button id="cancelar-modal-btn" class="modal-btn-cancelar">Cancelar</button>
                 <button id="confirmar-modal-btn" class="modal-btn-confirmar">Confirmar</button>
@@ -144,27 +134,11 @@
     <script src="JS/script-simulador.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const userInfo = getUserInfo();
-            if (userInfo && userInfo.nombre) {
-                document.getElementById('user-name-display').textContent = `Aspirante: ${userInfo.nombre}`;
-                setupActivityListeners(); // Inicia el timer de inactividad
-            } else {
-                logoutUser();
-            }
-
-            document.getElementById('logout-button').addEventListener('click', (e) => {
-                e.preventDefault();
-                logoutUser();
-            });
-        });
-    </script>
-    <script src="JS/script-simulador.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-             // Llama a la función centralizada en auth.js
+             // Configura nombre, dropdown desktop y listeners de actividad
              setupUserInfoDropdown();
+             // Configura el menú hamburguesa móvil
+             setupMobileMenu(); 
         });
     </script>
 </body>
 </html>
-
