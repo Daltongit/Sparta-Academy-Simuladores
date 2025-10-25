@@ -8,5 +8,10 @@
     "usuario": "jefa",
     "contrasena": "root",
     "nombre": "Jefa Geo"
+  },
+  {
+    "usuario": "prueba",
+    "contrasena": "123",
+    "nombre": "Usuario de Prueba"
   }
 ]
