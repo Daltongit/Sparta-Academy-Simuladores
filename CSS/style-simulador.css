@@ -5,7 +5,7 @@ body { font-family: 'Work Sans', Arial, sans-serif; background-color: #f0f2f5; c
 
 /* --- HEADER Y FOOTER (Compartidos) --- */
 header, footer { background-color: #1a1a1a; color: white; padding: 12px 25px; z-index: 10; }
-header { display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); }
+header { display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); position: relative; /* Necesario para el z-index del dropdown */ }
 .header-logo { display: flex; align-items: center; }
 .header-logo img { height: 55px; margin-right: 20px; }
 .header-titulo { flex-grow: 1; }
@@ -91,28 +91,29 @@ main { flex: 1; padding: 2rem; position: relative; }
 
 /* --- USER INFO Y LOGOUT (Escritorio) --- */
 .user-info-container { display: flex; align-items: center; margin-left: auto; color: #eee; font-size: 0.9rem; }
-#user-name-display-desktop { margin-right: 0.5rem; white-space: nowrap; } /* Separación nombre-flecha */
+#user-name-display-desktop { margin-right: 0.5rem; white-space: nowrap; }
 .dropdown { position: relative; display: inline-block; }
 .dropdown-btn { background: none; border: none; color: #eee; font-size: 1rem; cursor: pointer; padding: 0 0.5rem; margin-left: 5px; /* Más espacio */ }
 
-/* Estilos mejorados para el dropdown */
+/* === ESTILOS MEJORADOS DROPDOWN === */
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #333; /* Fondo más oscuro */
+    background-color: #2c2c2c; /* Fondo más oscuro */
     min-width: 140px; /* Ancho mínimo */
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4); /* Sombra más pronunciada */
-    z-index: 1;
+    box-shadow: 0px 10px 20px 0px rgba(0,0,0,0.5); /* Sombra más definida */
+    z-index: 20; /* Asegura que esté sobre otros elementos del header si es necesario */
     right: 0;
-    border-radius: 5px; /* Bordes redondeados */
-    margin-top: 5px; /* Pequeña separación del botón */
+    border-radius: 6px; /* Bordes un poco más redondeados */
+    margin-top: 10px; /* Separación vertical aumentada */
+    border: 1px solid #444; /* Borde sutil */
     overflow: hidden; /* Para que el hover no se salga */
 }
 .dropdown-content.show { display: block; }
 
 .dropdown-content a {
-    color: #eee; /* Texto claro */
-    padding: 12px 16px; /* Más padding */
+    color: #ddd; /* Texto más claro */
+    padding: 12px 18px; /* Padding ajustado */
     text-decoration: none;
     display: block;
     font-size: 0.9rem;
@@ -121,9 +122,10 @@ main { flex: 1; padding: 2rem; position: relative; }
 }
 
 .dropdown-content a:hover {
-    background-color: #b22222; /* Fondo rojo */
+    background-color: #b22222; /* Rojo Sparta */
     color: white; /* Letras blancas */
 }
+/* === FIN ESTILOS MEJORADOS DROPDOWN === */
 
 /* --- HAMBURGUESA Y PANEL LATERAL (Móvil) --- */
 .hamburger-menu { display: none; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; padding: 0 0.5rem; margin-left: auto; }
