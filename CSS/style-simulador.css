@@ -91,13 +91,39 @@ main { flex: 1; padding: 2rem; position: relative; }
 
 /* --- USER INFO Y LOGOUT (Escritorio) --- */
 .user-info-container { display: flex; align-items: center; margin-left: auto; color: #eee; font-size: 0.9rem; }
-#user-name-display-desktop { margin-right: 0.5rem; white-space: nowrap; }
+#user-name-display-desktop { margin-right: 0.5rem; white-space: nowrap; } /* Separación nombre-flecha */
 .dropdown { position: relative; display: inline-block; }
-.dropdown-btn { background: none; border: none; color: #eee; font-size: 1rem; cursor: pointer; padding: 0 0.5rem; }
-.dropdown-content { display: none; position: absolute; background-color: #f1f1f1; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 4px; }
+.dropdown-btn { background: none; border: none; color: #eee; font-size: 1rem; cursor: pointer; padding: 0 0.5rem; margin-left: 5px; /* Más espacio */ }
+
+/* Estilos mejorados para el dropdown */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #333; /* Fondo más oscuro */
+    min-width: 140px; /* Ancho mínimo */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4); /* Sombra más pronunciada */
+    z-index: 1;
+    right: 0;
+    border-radius: 5px; /* Bordes redondeados */
+    margin-top: 5px; /* Pequeña separación del botón */
+    overflow: hidden; /* Para que el hover no se salga */
+}
 .dropdown-content.show { display: block; }
-.dropdown-content a { color: black; padding: 10px 15px; text-decoration: none; display: block; font-size: 0.9rem; transition: background-color 0.2s, color 0.2s; }
-.dropdown-content a:hover { background-color: #b22222; color: white; }
+
+.dropdown-content a {
+    color: #eee; /* Texto claro */
+    padding: 12px 16px; /* Más padding */
+    text-decoration: none;
+    display: block;
+    font-size: 0.9rem;
+    text-align: center; /* Centrar texto */
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.dropdown-content a:hover {
+    background-color: #b22222; /* Fondo rojo */
+    color: white; /* Letras blancas */
+}
 
 /* --- HAMBURGUESA Y PANEL LATERAL (Móvil) --- */
 .hamburger-menu { display: none; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; padding: 0 0.5rem; margin-left: auto; }
