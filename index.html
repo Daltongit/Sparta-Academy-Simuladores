@@ -20,18 +20,33 @@
             <h1>SPARTA ACADEMY</h1>
             <h2>PLATAFORMA DE SIMULADORES</h2>
         </div>
-        <div class="user-info-container">
-            <span id="user-name-display">Aspirante: Cargando...</span>
+
+        <div class="user-info-container desktop-only">
+            <span id="user-name-display-desktop">Aspirante: Cargando...</span>
             <div class="dropdown">
                 <button class="dropdown-btn">▼</button>
                 <div class="dropdown-content">
-                    <a href="#" id="logout-button">Cerrar Sesión</a>
+                    <a href="#" id="logout-button-desktop">Cerrar Sesión</a>
                 </div>
             </div>
         </div>
+
+        <button class="hamburger-menu mobile-only" id="hamburger-btn">☰</button>
     </header>
 
-    <main>
+    <div class="side-nav" id="side-nav">
+        <button class="close-nav-btn" id="close-nav-btn">&times;</button>
+        <div class="side-nav-header">
+             <img src="logo.png" alt="Sparta Logo" class="side-nav-logo">
+             <h3>Menú Aspirante</h3>
+        </div>
+        <div class="side-nav-user">
+            <p>Aspirante:</p>
+            <p><strong id="user-name-display-mobile">Cargando...</strong></p>
+        </div>
+        <a href="#" id="logout-button-mobile" class="side-nav-link">Cerrar Sesión</a>
+    </div>
+    <div class="overlay" id="overlay"></div> <main>
         <div class="marca-de-agua">
             <img src="logo.png" alt="Watermark">
         </div>
@@ -65,30 +80,12 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const userInfo = getUserInfo();
-            if (userInfo && userInfo.nombre) {
-                document.getElementById('user-name-display').textContent = `Aspirante: ${userInfo.nombre}`;
-                setupActivityListeners(); // Inicia el timer de inactividad
-            } else {
-                // Si por alguna razón no hay info (raro, ya que checkAuth lo haría antes)
-                logoutUser();
-            }
-
-            // Manejar click en logout
-            document.getElementById('logout-button').addEventListener('click', (e) => {
-                e.preventDefault(); // Evita que el enlace '#' navegue
-                logoutUser();
-            });
-        });
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Llama a la función centralizada en auth.js
+            // Configura nombre, dropdown desktop y listeners de actividad
             setupUserInfoDropdown(); 
+            // Configura el menú hamburguesa móvil
+            setupMobileMenu(); 
         });
     </script>
 
 </body>
 </html>
-
