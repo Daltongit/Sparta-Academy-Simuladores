@@ -6,6 +6,10 @@
     <title>Sparta Academy - Simuladores</title>
     <link rel="stylesheet" href="CSS/style-home.css">
     <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600&family=Work+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <script src="JS/auth.js"></script>
+    <script>
+        checkAuth(); // Verifica si está logueado, si no, redirige a login.html
+    </script>
 </head>
 <body>
     <header>
@@ -15,6 +19,15 @@
         <div class="header-titulo">
             <h1>SPARTA ACADEMY</h1>
             <h2>PLATAFORMA DE SIMULADORES</h2>
+        </div>
+        <div class="user-info-container">
+            <span id="user-name-display">Aspirante: Cargando...</span>
+            <div class="dropdown">
+                <button class="dropdown-btn">▼</button>
+                <div class="dropdown-content">
+                    <a href="#" id="logout-button">Cerrar Sesión</a>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -31,16 +44,13 @@
                 <a href="simulador.html?materia=sociales" class="materia-card">
                     <h3>CIENCIAS SOCIALES</h3>
                 </a>
-
                 <a href="simulador.html?materia=matematicas" class="materia-card">
                     <h3>MATEMÁTICAS</h3>
                 </a>
-
                 <a href="simulador.html?materia=lengua" class="materia-card">
                     <h3>LENGUA Y LITERATURA</h3>
                 </a>
-
-                <a href="simulador.html?materia=ingles" class="materia-card">
+                 <a href="simulador.html?materia=ingles" class="materia-card">
                     <h3>INGLÉS</h3>
                 </a>
             </div>
@@ -52,6 +62,25 @@
         <p>Cell: 0989746618 / 0984541920 / 0987451775</p>
         <p>Email: spartatulcan@gmail.com</p>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userInfo = getUserInfo();
+            if (userInfo && userInfo.nombre) {
+                document.getElementById('user-name-display').textContent = `Aspirante: ${userInfo.nombre}`;
+                setupActivityListeners(); // Inicia el timer de inactividad
+            } else {
+                // Si por alguna razón no hay info (raro, ya que checkAuth lo haría antes)
+                logoutUser();
+            }
+
+            // Manejar click en logout
+            document.getElementById('logout-button').addEventListener('click', (e) => {
+                e.preventDefault(); // Evita que el enlace '#' navegue
+                logoutUser();
+            });
+        });
+    </script>
 
 </body>
 </html>
