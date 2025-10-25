@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Redirigir si ya está logueado (evita ver login si ya hay sesión)
     if (isLoggedIn()) {
-        window.location.href = 'index.html';
+        // Usamos replace para evitar que login.html quede en el historial
+        window.location.replace('index.html');
         return; // Detiene la ejecución del resto del script
     }
 
@@ -43,8 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (usuarioEncontrado) {
             // ¡Login exitoso!
-            // Guardamos solo el nombre para mostrar
-            const userInfo = { nombre: usuarioEncontrado.nombre }; 
+            const userInfo = { nombre: usuarioEncontrado.nombre };
             saveSession(userInfo);
 
             // Mostrar modal de bienvenida
@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Manejar botón "Continuar" del modal
     continuarBtn.addEventListener('click', () => {
         modalOverlay.style.display = 'none';
-        window.location.href = 'index.html'; // Redirige a la página principal
+        // (MODIFICADO) Usamos replace para evitar que login.html quede en el historial
+        window.location.replace('index.html');
     });
 });
