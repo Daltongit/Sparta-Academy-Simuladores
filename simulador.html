@@ -6,6 +6,10 @@
     <title>Sparta Academy - Simulador</title>
     <link rel="stylesheet" href="CSS/style-simulador.css">
     <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600&family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <script src="JS/auth.js"></script>
+    <script>
+        checkAuth(); // Verifica si está logueado, si no, redirige a login.html
+    </script>
 </head>
 <body>
 
@@ -16,6 +20,15 @@
         <div class="header-titulo">
             <h1>SPARTA ACADEMY</h1>
             <h2 id="titulo-materia">SIMULADOR DE: ...</h2>
+        </div>
+         <div class="user-info-container">
+            <span id="user-name-display">Aspirante: Cargando...</span>
+            <div class="dropdown">
+                <button class="dropdown-btn">▼</button>
+                <div class="dropdown-content">
+                    <a href="#" id="logout-button">Cerrar Sesión</a>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -129,5 +142,21 @@
     </footer>
 
     <script src="JS/script-simulador.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userInfo = getUserInfo();
+            if (userInfo && userInfo.nombre) {
+                document.getElementById('user-name-display').textContent = `Aspirante: ${userInfo.nombre}`;
+                setupActivityListeners(); // Inicia el timer de inactividad
+            } else {
+                logoutUser();
+            }
+
+            document.getElementById('logout-button').addEventListener('click', (e) => {
+                e.preventDefault();
+                logoutUser();
+            });
+        });
+    </script>
 </body>
 </html>
