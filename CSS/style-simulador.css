@@ -34,9 +34,18 @@ header {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
+.header-logo {
+    display: flex; /* Para alinear el logo */
+    align-items: center;
+}
+
 .header-logo img {
     height: 55px;
     margin-right: 20px;
+}
+
+.header-titulo {
+     flex-grow: 1; /* Empuja la info de usuario a la derecha */
 }
 
 .header-titulo h1 {
@@ -520,6 +529,63 @@ main {
     background-color: #8B0000;
 }
 
+/* --- (NUEVO) ESTILOS USER INFO Y LOGOUT --- */
+.user-info-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto; /* Empuja a la derecha */
+    color: #eee;
+    font-size: 0.9rem;
+}
+
+#user-name-display {
+    margin-right: 0.5rem;
+    white-space: nowrap; /* Evita que el nombre se parta */
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-btn {
+    background: none;
+    border: none;
+    color: #eee;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 120px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0; /* Alinea a la derecha del botón */
+    border-radius: 4px;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    font-size: 0.9rem;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+/* Muestra el dropdown al hacer hover o focus en el botón */
+.dropdown:hover .dropdown-content,
+.dropdown-btn:focus + .dropdown-content {
+    display: block;
+}
+
 
 /* Responsivo para móviles */
 @media (max-width: 900px) {
@@ -535,7 +601,17 @@ main {
         grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); /* Hace que se ajuste solo */
     }
 }
+@media (max-width: 768px) {
+    .header-titulo h1 { font-size: 1.5rem; }
+    .header-titulo h2 { font-size: 0.8rem; }
+    .user-info-container { font-size: 0.8rem; }
+}
 @media (max-width: 600px) {
+    header { padding: 10px 15px; }
+    .header-logo img { height: 45px; margin-right: 10px;}
+    .user-info-container { display: none; } /* Ocultar en móviles muy pequeños si molesta */
+    /* Descomenta la línea de arriba si prefieres ocultarlo */
+    
     main { padding: 1rem; }
     .quiz-col-izquierda, #lobby-container, #resultados-container { padding: 1.5rem; }
     .estadisticas-grid { grid-template-columns: 1fr 1fr; }
