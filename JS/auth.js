@@ -37,17 +37,16 @@ function clearSession() {
 
 function logoutUser() {
     clearSession();
-    // Reemplaza el historial para que el botón "Atrás" no funcione
     window.location.replace('login.html');
 }
 
 function checkAuth() {
     if (!isLoggedIn()) {
-        // Reemplaza el historial para que el botón "Atrás" no funcione
         window.location.replace('login.html');
     }
 }
 
+// --- Manejo del Timer de Inactividad ---
 function resetInactivityTimer() {
     clearTimeout(inactivityTimer);
     inactivityTimer = setTimeout(() => {
@@ -57,47 +56,117 @@ function resetInactivityTimer() {
 }
 
 function setupActivityListeners() {
-    // Reinicia el timer con cualquier interacción
     ['mousemove', 'keypress', 'click', 'scroll'].forEach(event => {
-        window.addEventListener(event, resetInactivityTimer);
+        window.addEventListener(event, resetInactivityTimer, { passive: true }); // Use passive listener
     });
 }
 
-// (NUEVA) Función para configurar el dropdown de usuario
+// --- Configuración Menú Escritorio ---
 function setupUserInfoDropdown() {
     const userInfo = getUserInfo();
-    const userNameDisplay = document.getElementById('user-name-display');
+    // Usa el ID específico de escritorio
+    const userNameDisplayDesktop = document.getElementById('user-name-display-desktop'); 
     const dropdownBtn = document.querySelector('.dropdown-btn');
     const dropdownContent = document.querySelector('.dropdown-content');
-    const logoutButton = document.getElementById('logout-button');
+    // Usa el ID específico de escritorio
+    const logoutButtonDesktop = document.getElementById('logout-button-desktop'); 
 
-    if (userInfo && userInfo.nombre && userNameDisplay) {
-        userNameDisplay.textContent = `Aspirante: ${userInfo.nombre}`;
+    if (userInfo && userInfo.nombre && userNameDisplayDesktop) {
+        userNameDisplayDesktop.textContent = `Aspirante: ${userInfo.nombre}`;
         setupActivityListeners(); // Inicia el timer de inactividad aquí
 
         if (dropdownBtn && dropdownContent) {
             dropdownBtn.addEventListener('click', (event) => {
-                event.stopPropagation(); // Evita que el clic se propague al window
+                event.stopPropagation(); 
                 dropdownContent.classList.toggle('show');
             });
 
-            // Cierra el dropdown si se hace clic fuera de él
             window.addEventListener('click', (event) => {
-                if (!dropdownBtn.contains(event.target) && dropdownContent.classList.contains('show')) {
+                if (!dropdownBtn.contains(event.target) && !dropdownContent.contains(event.target) && dropdownContent.classList.contains('show')) {
                      dropdownContent.classList.remove('show');
                 }
             });
         }
 
-        if (logoutButton) {
-            logoutButton.addEventListener('click', (e) => {
+        if (logoutButtonDesktop) {
+            logoutButtonDesktop.addEventListener('click', (e) => {
                 e.preventDefault();
                 logoutUser();
             });
         }
 
-    } else {
-        // Si no hay info, redirige (aunque checkAuth ya debería haberlo hecho)
+    } else if (!userInfo || !userInfo.nombre) { 
+        // Solo redirige si falta la info del usuario, no si el elemento no existe (móvil)
         logoutUser();
     }
 }
+
+// --- (NUEVA) Configuración Menú Móvil ---
+function setupMobileMenu() {
+    const userInfo = getUserInfo();
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sideNav = document.getElementById('side-nav');
+    const closeNavBtn = document.getElementById('close-nav-btn');
+    const overlay = document.getElementById('overlay');
+    // Usa el ID específico de móvil
+    const userNameDisplayMobile = document.getElementById('user-name-display-mobile');
+    // Usa el ID específico de móvil
+    const logoutButtonMobile = document.getElementById('logout-button-mobile');
+
+    // Solo configura si los elementos existen (para que no falle en escritorio si no están)
+    if (hamburgerBtn && sideNav && closeNavBtn && overlay && userNameDisplayMobile && logoutButtonMobile) {
+        
+        // Poner el nombre en el menú lateral
+         if (userInfo && userInfo.nombre) {
+            userNameDisplayMobile.textContent = userInfo.nombre;
+         }
+
+        // Abrir menú
+        hamburgerBtn.addEventListener('click', () => {
+            sideNav.classList.add('open');
+            overlay.classList.add('show');
+        });
+
+        // Cerrar menú con botón X
+        closeNavBtn.addEventListener('click', () => {
+            sideNav.classList.remove('open');
+            overlay.classList.remove('show');
+        });
+
+        // Cerrar menú haciendo clic en el overlay
+        overlay.addEventListener('click', () => {
+            sideNav.classList.remove('open');
+            overlay.classList.remove('show');
+        });
+
+        // Botón de logout en menú lateral
+        logoutButtonMobile.addEventListener('click', (e) => {
+            e.preventDefault();
+            logoutUser();
+        });
+    }
+}
+
+// --- (NUEVO) Script anti-back en login.html ---
+// Añade esto al final de login.html si quieres intentar bloquear el "atrás"
+/*
+<script>
+    // Intenta prevenir volver atrás desde la página de login
+    window.onload = function() {
+        if (window.history && window.history.pushState) {
+            // Reemplaza la entrada actual para que "atrás" no vuelva aquí
+             window.history.replaceState('forward', null, './login.html'); 
+            // Añade una entrada falsa para capturar el evento "popstate" (atrás/adelante)
+             window.history.pushState('forward', null, './login.html'); 
+
+            window.addEventListener('popstate', function(event) {
+                // Si el usuario intenta ir atrás, lo volvemos a empujar a login
+                // Esto puede ser molesto si viene de otro sitio
+                 window.history.pushState('forward', null, './login.html');
+                 // console.log("Intento de navegación bloqueado"); 
+            });
+        }
+    }
+</script>
+*/
+// --- Fin Script anti-back ---
