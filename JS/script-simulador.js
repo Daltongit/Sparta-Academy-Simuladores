@@ -1,27 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. REFERENCIAS A ELEMENTOS DEL DOM ---
-    // Contenedores de Pantallas
     const lobbyContainer = document.getElementById('lobby-container');
     const simuladorContainer = document.getElementById('simulador-container');
     const resultadosContainer = document.getElementById('resultados-container');
-
-    // Elementos del Lobby
     const tituloMateria = document.getElementById('titulo-materia');
     const lobbyMateria = document.getElementById('lobby-materia');
     const comenzarBtn = document.getElementById('comenzar-btn');
-
-    // Elementos del Simulador
     const cronometroDisplay = document.getElementById('cronometro');
     const preguntaNumero = document.getElementById('pregunta-numero');
     const preguntaTexto = document.getElementById('pregunta-texto');
     const opcionesContainer = document.getElementById('opciones-container');
-    const navegadorPreguntas = document.getElementById('navegador-preguntas'); // (HA VUELTO)
-    // const anteriorBtn = document.getElementById('anterior-btn'); // Sigue eliminado
+    const navegadorPreguntas = document.getElementById('navegador-preguntas');
     const siguienteBtn = document.getElementById('siguiente-btn');
     const terminarIntentoBtn = document.getElementById('terminar-intento-btn');
-
-    // Elementos de Resultados
     const puntajeFinalDisplay = document.getElementById('puntaje-final');
     const statsContestadas = document.getElementById('stats-contestadas');
     const statsCorrectas = document.getElementById('stats-correctas');
@@ -29,12 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const statsEnBlanco = document.getElementById('stats-en-blanco');
     const revisionContainer = document.getElementById('revision-container');
     const reiniciarBtn = document.getElementById('reiniciar-btn');
-
-    // (NUEVO) Elementos del Modal
     const modalOverlay = document.getElementById('modal-overlay');
     const modalMensaje = document.getElementById('modal-mensaje');
     const cancelarModalBtn = document.getElementById('cancelar-modal-btn');
     const confirmarModalBtn = document.getElementById('confirmar-modal-btn');
+    const modalBotones = document.querySelector('.modal-botones');
 
     // --- 2. VARIABLES GLOBALES DEL SIMULADOR ---
     let preguntasOriginales = [];
@@ -42,12 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let respuestasUsuario = [];
     let indicePreguntaActual = 0;
     let cronometroInterval;
-    let tiempoRestanteSeg = 3600;
+    let tiempoRestanteSeg; // <-- Se inicializa en inicializar()
     const TOTAL_PREGUNTAS = 50;
 
     const materias = {
         'sociales': 'Ciencias Sociales',
-        'matematicas': 'Matemáticas',
+        'matematicas': 'Matemáticas y Física', // Ajustado nombre si aplica
         'lengua': 'Lengua y Literatura',
         'ingles': 'Inglés'
     };
@@ -67,46 +58,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
         cargarPreguntas(materiaKey);
 
-        // Listeners de botones
+        // --- (MODIFICADO) Determinar Duración y Actualizar Lobby ---
+        let quizDurationSeconds;
+        let lobbyTiempoTexto;
+
+        if (materiaKey === 'matematicas') {
+            quizDurationSeconds = 90 * 60; // 90 minutos * 60 segundos
+            lobbyTiempoTexto = "1 Hora y 30 Minutos (90 Minutos)";
+        } else {
+            quizDurationSeconds = 60 * 60; // 60 minutos * 60 segundos
+            lobbyTiempoTexto = "1 Hora (60 Minutos)";
+        }
+
+        // Actualizar el tiempo restante inicial
+        tiempoRestanteSeg = quizDurationSeconds; 
+
+        // Actualizar el texto en el lobby (si existe el elemento)
+        const lobbyTiempoDisplay = document.getElementById('lobby-tiempo');
+        if (lobbyTiempoDisplay) {
+            lobbyTiempoDisplay.textContent = lobbyTiempoTexto;
+        }
+        // --- Fin Modificación --- 
+
+        // Listeners
         comenzarBtn.addEventListener('click', iniciarIntento);
         siguienteBtn.addEventListener('click', irPreguntaSiguiente);
-        terminarIntentoBtn.addEventListener('click', confirmarTerminarIntento); // (Ahora abre el modal)
-        reiniciarBtn.addEventListener('click', () => {
-            window.location.href = 'index.html';
-        });
-
-        // (NUEVO) Listeners del Modal
-        cancelarModalBtn.addEventListener('click', () => {
-            modalOverlay.style.display = 'none';
-        });
-        confirmarModalBtn.addEventListener('click', () => {
-            modalOverlay.style.display = 'none';
-            finalizarIntento(false); // false = finalizado por usuario
-        });
+        terminarIntentoBtn.addEventListener('click', confirmarTerminarIntento);
+        reiniciarBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
+        cancelarModalBtn.addEventListener('click', () => { modalOverlay.style.display = 'none'; });
+        confirmarModalBtn.addEventListener('click', () => { modalOverlay.style.display = 'none'; finalizarIntento(false); });
     }
 
     // --- 4. LÓGICA DE CARGA Y PREPARACIÓN ---
     function cargarPreguntas(materia) {
         const url = `DATA/preguntas_${materia}.json`;
         fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('No se encontró el archivo de preguntas.');
-                }
-                return response.json();
-            })
+            .then(response => { if (!response.ok) throw new Error('No se encontró archivo.'); return response.json(); })
             .then(data => {
                 preguntasOriginales = data;
-                if (data.length === 0) {
-                    alert(`No hay preguntas cargadas para ${materias[materia]}. Volviendo al inicio.`);
-                    window.location.href = 'index.html';
-                }
+                if (data.length === 0) { alert(`No hay preguntas para ${materias[materia]}.`); window.location.href = 'index.html'; }
             })
-            .catch(error => {
-                console.error(error);
-                alert(`Error al cargar las preguntas de ${materias[materia]}. Volviendo al inicio.`);
-                window.location.href = 'index.html';
-            });
+            .catch(error => { console.error(error); alert(`Error cargando preguntas de ${materias[materia]}.`); window.location.href = 'index.html'; });
     }
 
     function prepararQuiz() {
@@ -118,96 +110,75 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 5. LÓGICA DEL SIMULADOR ---
     function iniciarIntento() {
         prepararQuiz();
-        if (preguntasQuiz.length === 0) {
-            alert("No se pudieron cargar las preguntas para el intento.");
-            return;
-        }
-
+        if (preguntasQuiz.length === 0) { alert("No se cargaron preguntas."); return; }
         lobbyContainer.style.display = 'none';
-        simuladorContainer.style.display = 'grid'; 
-
-        construirNavegador(); // (HA VUELTO)
+        simuladorContainer.style.display = 'grid';
+        construirNavegador();
         mostrarPregunta(0);
         iniciarCronometro();
     }
 
     function iniciarCronometro() {
+        // tiempoRestanteSeg = quizDurationSeconds; // Asegura que SIEMPRE inicie con el tiempo correcto
+        // La línea de arriba es opcional si ya lo asignaste en inicializar, pero no hace daño
+        
+        // Actualizar display inicial
+        const minutosIni = Math.floor(tiempoRestanteSeg / 60);
+        const segundosIni = tiempoRestanteSeg % 60;
+        cronometroDisplay.textContent = `${minutosIni.toString().padStart(2, '0')}:${segundosIni.toString().padStart(2, '0')}`;
+
+        clearInterval(cronometroInterval); // Limpia si había uno previo
         cronometroInterval = setInterval(() => {
             tiempoRestanteSeg--;
-            
             const minutos = Math.floor(tiempoRestanteSeg / 60);
             const segundos = tiempoRestanteSeg % 60;
-            
-            cronometroDisplay.textContent = 
-                `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-
-            if (tiempoRestanteSeg <= 0) {
-                finalizarIntento(true);
-            }
+            cronometroDisplay.textContent = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+            if (tiempoRestanteSeg <= 0) { finalizarIntento(true); }
         }, 1000);
     }
 
-    // (HA VUELTO)
     function construirNavegador() {
-        navegadorPreguntas.innerHTML = ''; // Limpiar
+        navegadorPreguntas.innerHTML = '';
         for (let i = 0; i < TOTAL_PREGUNTAS; i++) {
             const btn = document.createElement('button');
             btn.className = 'nav-btn';
             btn.textContent = i + 1;
             btn.dataset.indice = i;
-            // IMPORTANTE: ¡No agregamos addEventListener!
-            // Es solo visual, no clickeable.
             navegadorPreguntas.appendChild(btn);
         }
     }
 
     function mostrarPregunta(indice) {
         if (indice < 0 || indice >= TOTAL_PREGUNTAS) return;
-        
         indicePreguntaActual = indice;
         const pregunta = preguntasQuiz[indice];
-
         preguntaNumero.textContent = `Pregunta ${indice + 1}`;
         preguntaTexto.textContent = pregunta.pregunta;
-
         opcionesContainer.innerHTML = '';
         pregunta.opciones.forEach(opcion => {
             const btn = document.createElement('button');
             btn.className = 'opcion-btn';
-            btn.innerHTML = opcion; 
-            
-            if (respuestasUsuario[indice] === opcion) {
-                btn.classList.add('selected');
-            }
-
+            btn.innerHTML = opcion;
+            if (respuestasUsuario[indice] === opcion) btn.classList.add('selected');
             btn.addEventListener('click', () => seleccionarRespuesta(opcion));
             opcionesContainer.appendChild(btn);
         });
-
         siguienteBtn.disabled = (indice === TOTAL_PREGUNTAS - 1);
-
-        actualizarNavegadorVisual(); // (HA VUELTO)
+        actualizarNavegadorVisual();
     }
 
     function seleccionarRespuesta(opcion) {
         respuestasUsuario[indicePreguntaActual] = opcion;
         mostrarPregunta(indicePreguntaActual);
-        
-        // (HA VUELTO) Marcar como "contestada" en el navegador
         const navBtn = navegadorPreguntas.querySelector(`[data-indice="${indicePreguntaActual}"]`);
-        if (navBtn) {
-            navBtn.classList.add('answered');
-        }
+        if (navBtn) navBtn.classList.add('answered');
     }
 
-    // (HA VUELTO)
     function actualizarNavegadorVisual() {
         const botones = navegadorPreguntas.querySelectorAll('.nav-btn');
         botones.forEach(btn => {
             btn.classList.remove('active');
-            if (parseInt(btn.dataset.indice) === indicePreguntaActual) {
-                btn.classList.add('active');
-            }
+            if (parseInt(btn.dataset.indice) === indicePreguntaActual) btn.classList.add('active');
         });
     }
 
@@ -217,40 +188,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // (MODIFICADO)
     function confirmarTerminarIntento() {
         const enBlanco = respuestasUsuario.filter(r => r === null).length;
         let mensaje = "¿Estás seguro de que deseas terminar el intento?";
-        
-        if (enBlanco > 0) {
-            mensaje += `<br><br>Todavía tienes <strong>${enBlanco} preguntas en blanco.</strong>`;
-        }
-        
-        // Mostrar el modal personalizado
+        if (enBlanco > 0) mensaje += `<br><br>Todavía tienes <strong>${enBlanco} preguntas en blanco.</strong>`;
         modalMensaje.innerHTML = mensaje;
+        modalBotones.style.display = 'flex';
         modalOverlay.style.display = 'flex';
     }
 
     // --- 6. LÓGICA DE FINALIZACIÓN Y RESULTADOS ---
     function finalizarIntento(porTiempo = false) {
-        clearInterval(cronometroInterval); 
-        
+        clearInterval(cronometroInterval);
         if (porTiempo) {
-            // (NUEVO) Usamos el modal para avisar que se acabó el tiempo
-            modalMensaje.innerHTML = "¡Se acabó el tiempo! El intento ha finalizado.";
+            modalMensaje.innerHTML = "¡Se acabó el tiempo!<br>El intento ha finalizado.";
+            modalBotones.style.display = 'none';
             modalOverlay.style.display = 'flex';
-            // Ocultamos los botones de cancelar/confirmar
-            document.querySelector('.modal-botones').style.display = 'none';
-            // Esperamos 3 segundos y luego mostramos resultados
-            setTimeout(() => {
-                modalOverlay.style.display = 'none';
-                mostrarResultadosPantalla();
-            }, 3000);
+            setTimeout(() => { modalOverlay.style.display = 'none'; mostrarResultadosPantalla(); }, 3000);
         } else {
             mostrarResultadosPantalla();
         }
     }
-    
+
     function mostrarResultadosPantalla() {
         simuladorContainer.style.display = 'none';
         resultadosContainer.style.display = 'block';
@@ -258,74 +217,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function calcularResultados() {
-        let correctas = 0;
-        let incorrectas = 0;
-        let enBlanco = 0;
-        let puntaje = 0;
-
+        let correctas = 0, incorrectas = 0, enBlanco = 0, puntaje = 0;
         for (let i = 0; i < TOTAL_PREGUNTAS; i++) {
-            const pregunta = preguntasQuiz[i];
-            const respuestaUser = respuestasUsuario[i];
-            const respuestaCorrecta = pregunta.respuesta;
-
-            if (respuestaUser === null) {
-                enBlanco++;
-            } else if (respuestaUser === respuestaCorrecta) {
-                correctas++;
-                puntaje += 20; // +20 por correcta
-            } else {
-                incorrectas++;
-                // Sin penalización
-            }
+            const respUser = respuestasUsuario[i];
+            const respCorrecta = preguntasQuiz[i].respuesta;
+            if (respUser === null) enBlanco++;
+            else if (respUser === respCorrecta) { correctas++; puntaje += 20; }
+            else incorrectas++;
         }
-
         if (puntaje < 0) puntaje = 0;
-
         puntajeFinalDisplay.textContent = puntaje;
         statsContestadas.textContent = correctas + incorrectas;
         statsCorrectas.textContent = correctas;
         statsIncorrectas.textContent = incorrectas;
         statsEnBlanco.textContent = enBlanco;
-
         mostrarRevision();
     }
 
     function mostrarRevision() {
-        revisionContainer.innerHTML = ''; 
-
+        revisionContainer.innerHTML = '';
         preguntasQuiz.forEach((pregunta, i) => {
-            const respuestaUser = respuestasUsuario[i];
-            const respuestaCorrecta = pregunta.respuesta;
-
+            const respUser = respuestasUsuario[i];
+            const respCorrecta = pregunta.respuesta;
             const divRevision = document.createElement('div');
             divRevision.className = 'revision-pregunta';
-
             let feedbackHTML = '';
-            if (respuestaUser === null) {
-                feedbackHTML = `
-                    <p class="respuesta-usuario">No contestada (0 Puntos)</p>
-                    <div class="feedback incorrecta">
-                        RESPUESTA
-                        <span>La respuesta correcta era: <strong>${respuestaCorrecta}</strong></span>
-                    </div>`;
-            } else if (respuestaUser === respuestaCorrecta) {
-                feedbackHTML = `
-                    <p class="respuesta-usuario">Tu respuesta: ${respuestaUser}</p>
-                    <div class="feedback correcta">CORRECTA (+20 Puntos)</div>`;
+            if (respUser === null) {
+                feedbackHTML = `<p class="respuesta-usuario">No contestada (0 Puntos)</p><div class="feedback incorrecta">RESPUESTA<span>La respuesta correcta era: <strong>${respCorrecta}</strong></span></div>`;
+            } else if (respUser === respCorrecta) {
+                feedbackHTML = `<p class="respuesta-usuario">Tu respuesta: ${respUser}</p><div class="feedback correcta">CORRECTA (+20 Puntos)</div>`;
             } else {
-                feedbackHTML = `
-                    <p class="respuesta-usuario">Tu respuesta: ${respuestaUser}</p>
-                    <div class="feedback incorrecta">
-                        INCORRECTA (0 Puntos)
-                        <span>La respuesta correcta era: <strong>${respuestaCorrecta}</strong></span>
-                    </div>`;
+                feedbackHTML = `<p class="respuesta-usuario">Tu respuesta: ${respUser}</p><div class="feedback incorrecta">INCORRECTA (0 Puntos)<span>La respuesta correcta era: <strong>${respCorrecta}</strong></span></div>`;
             }
-
-            divRevision.innerHTML = `
-                <p><span class="pregunta-num">Pregunta ${i + 1}:</span> ${pregunta.pregunta}</p>
-                ${feedbackHTML}
-            `;
-            
+            divRevision.innerHTML = `<p><span class="pregunta-num">Pregunta ${i + 1}:</span> ${pregunta.pregunta}</p>${feedbackHTML}`;
             revisionContainer.appendChild(divRevision);
         });
     }
