@@ -5,7 +5,7 @@ body { font-family: 'Work Sans', Arial, sans-serif; background-color: #f0f2f5; c
 
 /* --- HEADER Y FOOTER (Compartidos) --- */
 header, footer { background-color: #1a1a1a; color: white; padding: 12px 25px; z-index: 10; }
-header { display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); position: relative; /* Necesario para el z-index del dropdown */}
+header { display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); position: relative; }
 .header-logo { display: flex; align-items: center; }
 .header-logo img { height: 55px; margin-right: 20px; }
 .header-titulo { flex-grow: 1; }
@@ -15,14 +15,36 @@ footer { color: #aaa; text-align: center; font-size: 0.85rem; line-height: 1.6; 
 footer p { margin: 4px 0; }
 
 /* --- CONTENIDO PRINCIPAL --- */
-main { flex: 1; padding: 2rem; position: relative; }
+main {
+    flex: 1;
+    padding: 2rem;
+    position: relative;
+    /* === CORRECCIÓN AQUÍ === */
+    display: flex; /* Vuelve a habilitar flexbox */
+    align-items: center; /* Centra verticalmente */
+    justify-content: center; /* Centra horizontalmente */
+    /* Ya no tiene overflow: hidden y body tiene min-height, así que el scroll funcionará si es necesario */
+}
 
 /* --- MARCA DE AGUA --- */
 .marca-de-agua { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; opacity: 0.06; pointer-events: none; }
 .marca-de-agua img { width: 350px; }
 
 /* --- CONTENEDOR DE SELECCIÓN --- */
-.seleccion-container { background-color: white; padding: 2.5rem 3rem; border-radius: 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); width: 100%; max-width: 800px; text-align: center; position: relative; z-index: 1; border-top: 5px solid #b22222; margin: 0 auto; }
+.seleccion-container {
+    background-color: white;
+    padding: 2.5rem 3rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    border-top: 5px solid #b22222;
+    /* Quitamos margin: 0 auto; porque flexbox ya lo centra */
+}
+
 .seleccion-container h1 { font-family: 'Teko', sans-serif; font-size: 2.8rem; margin-bottom: 0.5rem; }
 .seleccion-container p { font-size: 1.1rem; color: #555; margin-bottom: 2rem; }
 .materias-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
@@ -35,38 +57,10 @@ main { flex: 1; padding: 2rem; position: relative; }
 #user-name-display-desktop { margin-right: 0.5rem; white-space: nowrap; }
 .dropdown { position: relative; display: inline-block; }
 .dropdown-btn { background: none; border: none; color: #eee; font-size: 1rem; cursor: pointer; padding: 0 0.5rem; margin-left: 5px; }
-
-/* === ESTILOS MEJORADOS DROPDOWN === */
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #2c2c2c; /* Fondo más oscuro que #333 */
-    min-width: 140px;
-    box-shadow: 0px 10px 20px 0px rgba(0,0,0,0.5); /* Sombra más definida */
-    z-index: 20; /* Asegura que esté sobre otros elementos del header si es necesario */
-    right: 0;
-    border-radius: 6px; /* Bordes un poco más redondeados */
-    margin-top: 10px; /* Separación vertical aumentada */
-    border: 1px solid #444; /* Borde sutil */
-    overflow: hidden;
-}
+.dropdown-content { display: none; position: absolute; background-color: #2c2c2c; min-width: 140px; box-shadow: 0px 10px 20px 0px rgba(0,0,0,0.5); z-index: 20; right: 0; border-radius: 6px; margin-top: 10px; border: 1px solid #444; overflow: hidden; }
 .dropdown-content.show { display: block; }
-
-.dropdown-content a {
-    color: #ddd; /* Texto más claro */
-    padding: 12px 18px; /* Padding ajustado */
-    text-decoration: none;
-    display: block;
-    font-size: 0.9rem;
-    text-align: center;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.dropdown-content a:hover {
-    background-color: #b22222; /* Rojo Sparta */
-    color: white;
-}
-/* === FIN ESTILOS MEJORADOS DROPDOWN === */
+.dropdown-content a { color: #ddd; padding: 12px 18px; text-decoration: none; display: block; font-size: 0.9rem; text-align: center; transition: background-color 0.2s, color 0.2s; }
+.dropdown-content a:hover { background-color: #b22222; color: white; }
 
 /* --- HAMBURGUESA Y PANEL LATERAL (Móvil) --- */
 .hamburger-menu { display: none; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; padding: 0 0.5rem; margin-left: auto; }
@@ -94,6 +88,10 @@ main { flex: 1; padding: 2rem; position: relative; }
     .mobile-only { display: block; }
     .header-titulo h1 { font-size: 1.5rem; }
     .header-titulo h2 { font-size: 0.8rem; }
+    /* Centrar en móvil también si es necesario */
+    main {
+       align-items: center; /* Asegura centrado vertical en tablet/móvil */
+    }
 }
 
 @media (max-width: 600px) {
