@@ -7,7 +7,7 @@
 
 html {
     scroll-behavior: smooth;
-    overflow-y: auto; 
+    overflow-y: auto;
 }
 
 body {
@@ -16,8 +16,8 @@ body {
     color: #333;
     display: flex;
     flex-direction: column;
-    min-height: 100vh; 
-    overflow-y: visible; 
+    min-height: 100vh;
+    overflow-y: visible;
 }
 
 /* --- HEADER Y FOOTER (Compartidos) --- */
@@ -35,7 +35,7 @@ header {
 }
 
 .header-logo {
-    display: flex; /* Para alinear el logo */
+    display: flex;
     align-items: center;
 }
 
@@ -45,7 +45,7 @@ header {
 }
 
 .header-titulo {
-    flex-grow: 1; /* Empuja la info de usuario a la derecha */
+    flex-grow: 1;
 }
 
 .header-titulo h1 {
@@ -76,14 +76,14 @@ footer p {
 
 /* --- CONTENIDO PRINCIPAL --- */
 main {
-    flex: 1; 
+    flex: 1;
     padding: 2rem;
     position: relative;
 }
 
 /* --- MARCA DE AGUA --- */
 .marca-de-agua {
-    position: fixed; /* Fija para que no moleste al hacer scroll */
+    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -108,7 +108,7 @@ main {
     position: relative;
     z-index: 1;
     border-top: 5px solid #b22222;
-    margin: 0 auto; /* Centrado horizontal */
+    margin: 0 auto;
 }
 
 .seleccion-container h1 {
@@ -156,18 +156,18 @@ main {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
 }
 
-/* --- (NUEVO) ESTILOS USER INFO Y LOGOUT --- */
+/* --- ESTILOS USER INFO Y LOGOUT --- */
 .user-info-container {
     display: flex;
     align-items: center;
-    margin-left: auto; /* Empuja a la derecha */
+    margin-left: auto;
     color: #eee;
     font-size: 0.9rem;
 }
 
 #user-name-display {
     margin-right: 0.5rem;
-    white-space: nowrap; /* Evita que el nombre se parta */
+    white-space: nowrap;
 }
 
 .dropdown {
@@ -184,6 +184,7 @@ main {
     padding: 0 0.5rem;
 }
 
+/* Base del dropdown (oculto) */
 .dropdown-content {
     display: none;
     position: absolute;
@@ -191,8 +192,13 @@ main {
     min-width: 120px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
-    right: 0; /* Alinea a la derecha del botón */
+    right: 0;
     border-radius: 4px;
+}
+
+/* Clase para mostrar el dropdown (controlada por JS) */
+.dropdown-content.show {
+    display: block;
 }
 
 .dropdown-content a {
@@ -201,18 +207,14 @@ main {
     text-decoration: none;
     display: block;
     font-size: 0.9rem;
+    transition: background-color 0.2s, color 0.2s; /* Transición suave */
 }
 
+/* (NUEVO) Estilo hover para el enlace */
 .dropdown-content a:hover {
-    background-color: #ddd;
+    background-color: #b22222; /* Fondo rojo */
+    color: white; /* Letras blancas */
 }
-
-/* Muestra el dropdown al hacer hover o focus en el botón */
-.dropdown:hover .dropdown-content,
-.dropdown-btn:focus + .dropdown-content {
-    display: block;
-}
-
 
 /* Responsivo para móviles */
 @media (max-width: 768px) {
@@ -224,11 +226,19 @@ main {
 @media (max-width: 600px) {
     header { padding: 10px 15px; }
     .header-logo img { height: 45px; margin-right: 10px;}
-    .user-info-container { display: none; } /* Ocultar en móviles muy pequeños si molesta */
-    /* Descomenta la línea de arriba si prefieres ocultarlo */
+    /* Eliminamos la regla que ocultaba user-info-container */
+    .user-info-container {
+       font-size: 0.75rem; /* Hacemos la letra un poco más pequeña */
+    }
+    #user-name-display {
+       max-width: 100px; /* Limitamos el ancho para nombres largos */
+       overflow: hidden;
+       text-overflow: ellipsis; /* Añade ... si el nombre es muy largo */
+    }
+
 
     main {
-        padding: 1.5rem 1rem; 
+        padding: 1.5rem 1rem;
     }
     .materias-grid {
         grid-template-columns: 1fr;
