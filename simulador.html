@@ -4,15 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sparta Academy - Simulador</title>
+
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="stylesheet" href="CSS/style-simulador.css">
     <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600&family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
     <script src="JS/auth.js"></script>
     <script>
-        checkAuth(); // Verifica si está logueado, si no, redirige a login.html
+        checkAuth(); // Verifica sesión al cargar inicialmente
     </script>
 </head>
 <body>
-
     <header>
         <div class="header-logo">
             <img src="logo.png" alt="Sparta Academy Logo">
@@ -21,7 +24,6 @@
             <h1>SPARTA ACADEMY</h1>
             <h2 id="titulo-materia">SIMULADOR DE: ...</h2>
         </div>
-
          <div class="user-info-container desktop-only">
             <span id="user-name-display-desktop">Aspirante: Cargando...</span>
             <div class="dropdown">
@@ -31,7 +33,6 @@
                 </div>
             </div>
         </div>
-
         <button class="hamburger-menu mobile-only" id="hamburger-btn">☰</button>
     </header>
 
@@ -47,7 +48,9 @@
         </div>
         <a href="#" id="logout-button-mobile" class="side-nav-link">Cerrar Sesión</a>
     </div>
-    <div class="overlay" id="overlay"></div> <main>
+    <div class="overlay" id="overlay"></div>
+
+    <main>
         <div id="lobby-container">
             <h1>Instrucciones del Simulacro</h1>
             <div class="datos-informativos">
@@ -134,10 +137,17 @@
     <script src="JS/script-simulador.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-             // Configura nombre, dropdown desktop y listeners de actividad
              setupUserInfoDropdown();
-             // Configura el menú hamburguesa móvil
-             setupMobileMenu(); 
+             setupMobileMenu();
+        });
+
+        // (NUEVO) Verifica sesión al mostrar la página (incluyendo al usar "Atrás")
+        window.addEventListener('pageshow', function(event) {
+             // Si la página viene del caché del navegador (bfcache)
+            if (event.persisted) {
+                 console.log("Página cargada desde caché (bfcache). Verificando sesión...");
+                 checkAuth(); // Vuelve a verificar la sesión
+            }
         });
     </script>
 </body>
