@@ -1,3 +1,5 @@
+// JS/script-simulador.js
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. REFERENCIAS A ELEMENTOS DEL DOM ---
@@ -38,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const materias = {
         'sociales': 'Ciencias Sociales',
-        'matematicas': 'Matemáticas y Física', // Ajustado nombre si aplica
+        'matematicas': 'Matemáticas y Física', // Asegúrate que este nombre sea el que quieres mostrar
         'lengua': 'Lengua y Literatura',
         'ingles': 'Inglés'
     };
@@ -46,39 +48,40 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 3. INICIALIZACIÓN ---
     function inicializar() {
         const params = new URLSearchParams(window.location.search);
-        const materiaKey = params.get('materia') || 'sociales';
+        const materiaKey = params.get('materia') || 'sociales'; // Obtiene la key de la URL
         const nombreMateria = materias[materiaKey] || 'Desconocida';
 
         tituloMateria.textContent = `SIMULADOR DE: ${nombreMateria.toUpperCase()}`;
         lobbyMateria.textContent = nombreMateria;
-        
+
         lobbyContainer.style.display = 'block';
         simuladorContainer.style.display = 'none';
         resultadosContainer.style.display = 'none';
 
         cargarPreguntas(materiaKey);
 
-        // --- (MODIFICADO) Determinar Duración y Actualizar Lobby ---
+        // --- Bloque CRÍTICO para el tiempo ---
         let quizDurationSeconds;
         let lobbyTiempoTexto;
 
+        // Verifica si la materia es 'matematicas'
         if (materiaKey === 'matematicas') {
-            quizDurationSeconds = 90 * 60; // 90 minutos * 60 segundos
+            quizDurationSeconds = 90 * 60; // ¡90 minutos! (5400 segundos)
             lobbyTiempoTexto = "1 Hora y 30 Minutos (90 Minutos)";
         } else {
-            quizDurationSeconds = 60 * 60; // 60 minutos * 60 segundos
+            quizDurationSeconds = 60 * 60; // 60 minutos para las otras (3600 segundos)
             lobbyTiempoTexto = "1 Hora (60 Minutos)";
         }
 
-        // Actualizar el tiempo restante inicial
-        tiempoRestanteSeg = quizDurationSeconds; 
+        // Asigna el tiempo correcto a la variable global
+        tiempoRestanteSeg = quizDurationSeconds;
 
-        // Actualizar el texto en el lobby (si existe el elemento)
+        // Actualiza el texto en el lobby
         const lobbyTiempoDisplay = document.getElementById('lobby-tiempo');
         if (lobbyTiempoDisplay) {
             lobbyTiempoDisplay.textContent = lobbyTiempoTexto;
         }
-        // --- Fin Modificación --- 
+        // --- Fin Bloque CRÍTICO ---
 
         // Listeners
         comenzarBtn.addEventListener('click', iniciarIntento);
@@ -115,14 +118,11 @@ document.addEventListener('DOMContentLoaded', () => {
         simuladorContainer.style.display = 'grid';
         construirNavegador();
         mostrarPregunta(0);
-        iniciarCronometro();
+        iniciarCronometro(); // Inicia el cronómetro con el tiempo ya establecido en inicializar()
     }
 
     function iniciarCronometro() {
-        // tiempoRestanteSeg = quizDurationSeconds; // Asegura que SIEMPRE inicie con el tiempo correcto
-        // La línea de arriba es opcional si ya lo asignaste en inicializar, pero no hace daño
-        
-        // Actualizar display inicial
+        // Asegura que el display inicial muestre el tiempo correcto (90 o 60 min)
         const minutosIni = Math.floor(tiempoRestanteSeg / 60);
         const segundosIni = tiempoRestanteSeg % 60;
         cronometroDisplay.textContent = `${minutosIni.toString().padStart(2, '0')}:${segundosIni.toString().padStart(2, '0')}`;
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const minutos = Math.floor(tiempoRestanteSeg / 60);
             const segundos = tiempoRestanteSeg % 60;
             cronometroDisplay.textContent = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-            if (tiempoRestanteSeg <= 0) { finalizarIntento(true); }
+            if (tiempoRestanteSeg <= 0) { finalizarIntento(true); } // Finaliza si llega a 0
         }, 1000);
     }
 
