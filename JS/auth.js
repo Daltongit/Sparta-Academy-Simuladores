@@ -1,22 +1,18 @@
 // JS/auth.js - Lógica compartida de autenticación y sesión
 
-// Duración de la sesión en milisegundos (6 horas)
-const SESSION_TIMEOUT_MS = 6 * 60 * 60 * 1000; 
+const SESSION_TIMEOUT_MS = 6 * 60 * 60 * 1000;
 let inactivityTimer;
 
-// Función para verificar si el usuario está logueado
 function isLoggedIn() {
     const expiration = sessionStorage.getItem('sessionExpiration');
     if (!expiration || Date.now() > parseInt(expiration)) {
-        clearSession(); // Limpia si expiró
+        clearSession();
         return false;
     }
-    // Reinicia el timer de inactividad si está logueado y activo
     resetInactivityTimer();
     return true;
 }
 
-// Función para obtener la información del usuario logueado
 function getUserInfo() {
     if (!isLoggedIn()) return null;
     try {
@@ -26,58 +22,82 @@ function getUserInfo() {
     }
 }
 
-// Función para guardar la sesión
 function saveSession(userInfo) {
     const expirationTime = Date.now() + SESSION_TIMEOUT_MS;
     sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
     sessionStorage.setItem('sessionExpiration', expirationTime.toString());
-    resetInactivityTimer(); // Inicia el timer al guardar
+    resetInactivityTimer();
 }
 
-// Función para limpiar la sesión
 function clearSession() {
     sessionStorage.removeItem('userInfo');
     sessionStorage.removeItem('sessionExpiration');
-    clearTimeout(inactivityTimer); // Detiene el timer
+    clearTimeout(inactivityTimer);
 }
 
-// Función para hacer logout
 function logoutUser() {
     clearSession();
-    // Redirige a login y evita que el botón "atrás" funcione
-    window.location.replace('login.html'); 
+    // Reemplaza el historial para que el botón "Atrás" no funcione
+    window.location.replace('login.html');
 }
 
-// Función para redirigir si no está logueado
 function checkAuth() {
     if (!isLoggedIn()) {
-        // Usamos replace para que no quede en el historial
-        window.location.replace('login.html'); 
+        // Reemplaza el historial para que el botón "Atrás" no funcione
+        window.location.replace('login.html');
     }
 }
 
-// --- Manejo del Timer de Inactividad ---
-
 function resetInactivityTimer() {
-    clearTimeout(inactivityTimer); // Limpia el timer anterior
+    clearTimeout(inactivityTimer);
     inactivityTimer = setTimeout(() => {
-        // Se ejecuta si pasan 6 horas sin actividad
         alert("Tu sesión ha expirado por inactividad.");
         logoutUser();
     }, SESSION_TIMEOUT_MS);
 }
 
-// Reinicia el timer con cualquier interacción del usuario
 function setupActivityListeners() {
-    window.addEventListener('mousemove', resetInactivityTimer);
-    window.addEventListener('keypress', resetInactivityTimer);
-    window.addEventListener('click', resetInactivityTimer);
-    window.addEventListener('scroll', resetInactivityTimer);
+    // Reinicia el timer con cualquier interacción
+    ['mousemove', 'keypress', 'click', 'scroll'].forEach(event => {
+        window.addEventListener(event, resetInactivityTimer);
+    });
 }
 
-// Llama a esta función en las páginas protegidas
-// setupActivityListeners(); // Lo llamaremos desde index.html y simulador.html si está logueado
+// (NUEVA) Función para configurar el dropdown de usuario
+function setupUserInfoDropdown() {
+    const userInfo = getUserInfo();
+    const userNameDisplay = document.getElementById('user-name-display');
+    const dropdownBtn = document.querySelector('.dropdown-btn');
+    const dropdownContent = document.querySelector('.dropdown-content');
+    const logoutButton = document.getElementById('logout-button');
 
+    if (userInfo && userInfo.nombre && userNameDisplay) {
+        userNameDisplay.textContent = `Aspirante: ${userInfo.nombre}`;
+        setupActivityListeners(); // Inicia el timer de inactividad aquí
 
-// Exportar funciones (si usaras módulos, pero aquí las hacemos globales)
-// No es necesario exportar si se incluyen directamente en el HTML
+        if (dropdownBtn && dropdownContent) {
+            dropdownBtn.addEventListener('click', (event) => {
+                event.stopPropagation(); // Evita que el clic se propague al window
+                dropdownContent.classList.toggle('show');
+            });
+
+            // Cierra el dropdown si se hace clic fuera de él
+            window.addEventListener('click', (event) => {
+                if (!dropdownBtn.contains(event.target) && dropdownContent.classList.contains('show')) {
+                     dropdownContent.classList.remove('show');
+                }
+            });
+        }
+
+        if (logoutButton) {
+            logoutButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                logoutUser();
+            });
+        }
+
+    } else {
+        // Si no hay info, redirige (aunque checkAuth ya debería haberlo hecho)
+        logoutUser();
+    }
+}
