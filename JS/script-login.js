@@ -5,26 +5,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const usuarioInput = document.getElementById('usuario');
     const contrasenaInput = document.getElementById('contrasena');
     const errorMensaje = document.getElementById('error-mensaje');
+    const togglePassword = document.getElementById('togglePassword'); // (NUEVO) Referencia al ojo
 
     // Referencias al Modal
     const modalOverlay = document.getElementById('modal-overlay');
     const modalNombreAspirante = document.getElementById('modal-nombre-aspirante');
     const continuarBtn = document.getElementById('continuar-btn');
 
-    // Redirigir si ya está logueado (evita ver login si ya hay sesión)
+    // Redirigir si ya está logueado
     if (isLoggedIn()) {
-        // Usamos replace para evitar que login.html quede en el historial
         window.location.replace('index.html');
-        return; // Detiene la ejecución del resto del script
+        return;
     }
 
     // Cargar usuarios
     let usuarios = [];
     fetch('DATA/usuarios.json')
         .then(response => response.json())
-        .then(data => {
-            usuarios = data;
-        })
+        .then(data => { usuarios = data; })
         .catch(error => {
             console.error('Error cargando usuarios:', error);
             errorMensaje.textContent = 'Error al cargar datos de usuario. Intente más tarde.';
@@ -33,36 +31,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Manejar envío del formulario
     loginForm.addEventListener('submit', (event) => {
-        event.preventDefault(); // Evita que la página se recargue
-        errorMensaje.style.display = 'none'; // Oculta errores previos
+        event.preventDefault();
+        errorMensaje.style.display = 'none';
 
         const usuario = usuarioInput.value.trim();
         const contrasena = contrasenaInput.value;
 
-        // Buscar al usuario
         const usuarioEncontrado = usuarios.find(u => u.usuario === usuario && u.contrasena === contrasena);
 
         if (usuarioEncontrado) {
-            // ¡Login exitoso!
             const userInfo = { nombre: usuarioEncontrado.nombre };
             saveSession(userInfo);
-
-            // Mostrar modal de bienvenida
             modalNombreAspirante.textContent = userInfo.nombre;
             modalOverlay.style.display = 'flex';
-
         } else {
-            // Login fallido
             errorMensaje.textContent = 'Usuario o contraseña incorrectos.';
             errorMensaje.style.display = 'block';
-            contrasenaInput.value = ''; // Limpia el campo de contraseña
+            contrasenaInput.value = '';
         }
     });
 
     // Manejar botón "Continuar" del modal
     continuarBtn.addEventListener('click', () => {
         modalOverlay.style.display = 'none';
-        // (MODIFICADO) Usamos replace para evitar que login.html quede en el historial
         window.location.replace('index.html');
     });
+
+    // (NUEVO) Lógica para mostrar/ocultar contraseña
+    if (togglePassword && contrasenaInput) {
+        togglePassword.addEventListener('click', function (e) {
+            // Obtener el tipo actual del input
+            const type = contrasenaInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            contrasenaInput.setAttribute('type', type);
+
+            // Cambiar el icono del ojo
+            this.classList.toggle('fa-eye'); // Quita fa-eye si existe, lo añade si no
+            this.classList.toggle('fa-eye-slash'); // Añade fa-eye-slash si no existe, lo quita si sí
+        });
+    }
 });
