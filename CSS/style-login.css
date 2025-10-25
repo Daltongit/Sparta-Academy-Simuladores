@@ -15,25 +15,31 @@ body { font-family: 'Work Sans', Arial, sans-serif; background-color: #f0f2f5; c
 .input-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
 .input-group input { width: 100%; padding: 0.8rem 1rem; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
 
-/* (NUEVO) Estilos para el contenedor de contraseña */
+/* Estilos para el contenedor de contraseña */
 .password-wrapper {
     position: relative; /* Necesario para posicionar el icono */
-    display: flex;
-    align-items: center;
+    display: flex; /* Asegura que el input y el icono estén en línea */
+    align-items: center; /* Centra verticalmente el icono con el input */
 }
 
 /* Ajuste para que el input no se solape con el icono */
 .password-wrapper input {
-    padding-right: 40px; /* Espacio a la derecha para el ojo */
+    /* El width: 100% viene de .input-group input */
+    padding-right: 45px; /* Más espacio a la derecha para el ojo */
+    flex-grow: 1; /* Asegura que el input ocupe el espacio disponible */
 }
 
-/* (NUEVO) Estilos para el icono del ojo */
+/* Estilos para el icono del ojo */
 #togglePassword {
     position: absolute;
-    right: 15px; /* Posición del icono */
+    right: 15px; /* Posición del icono desde la derecha */
+    top: 50%; /* Centra verticalmente */
+    transform: translateY(-50%); /* Ajuste fino vertical */
     cursor: pointer;
     color: #b22222; /* Color rojo Sparta */
     font-size: 1.1rem;
+    padding: 5px; /* Añade un poco de área clickeable */
+    z-index: 2; /* Asegura que esté sobre el input */
 }
 
 .login-button { display: block; width: 100%; padding: 1rem; font-size: 1.2rem; font-weight: 700; background-color: #b22222; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; margin-top: 1rem; }
@@ -54,4 +60,13 @@ body { font-family: 'Work Sans', Arial, sans-serif; background-color: #f0f2f5; c
 @media (max-width: 500px) {
     .login-container { padding: 2rem 1.5rem; }
     .modal-box { width: 90%; padding: 1.5rem; }
+
+    /* Ajuste específico para el icono en pantallas pequeñas */
+    #togglePassword {
+        right: 10px; /* Un poco más cerca del borde si es necesario */
+        font-size: 1rem; /* Un poco más pequeño si se ve muy grande */
+    }
+    .password-wrapper input {
+        padding-right: 40px; /* Asegurar espacio */
+    }
 }
