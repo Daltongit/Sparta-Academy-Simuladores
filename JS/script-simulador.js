@@ -3,11 +3,13 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. REFERENCIAS A ELEMENTOS DEL DOM ---
+    // (Sin cambios aquí, se mantienen las mismas referencias)
     const lobbyContainer = document.getElementById('lobby-container');
     const simuladorContainer = document.getElementById('simulador-container');
     const resultadosContainer = document.getElementById('resultados-container');
     const tituloMateria = document.getElementById('titulo-materia');
     const lobbyMateria = document.getElementById('lobby-materia');
+    const lobbyPreguntasDisplay = document.getElementById('lobby-preguntas'); // Referencia al span de preguntas
     const comenzarBtn = document.getElementById('comenzar-btn');
     const cronometroDisplay = document.getElementById('cronometro');
     const preguntaNumero = document.getElementById('pregunta-numero');
@@ -35,20 +37,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let respuestasUsuario = [];
     let indicePreguntaActual = 0;
     let cronometroInterval;
-    let tiempoRestanteSeg; // <-- Se inicializa en inicializar()
-    const TOTAL_PREGUNTAS = 50;
+    let tiempoRestanteSeg;
+    let TOTAL_PREGUNTAS_QUIZ = 50; // Valor por defecto, se ajustará
 
     const materias = {
         'sociales': 'Ciencias Sociales',
-        'matematicas': 'Matemáticas y Física', // Asegúrate que este nombre sea el que quieres mostrar
+        'matematicas': 'Matemáticas y Física',
         'lengua': 'Lengua y Literatura',
-        'ingles': 'Inglés'
+        'ingles': 'Inglés',
+        'general': 'General (Todas)' // (NUEVO)
     };
 
     // --- 3. INICIALIZACIÓN ---
     function inicializar() {
         const params = new URLSearchParams(window.location.search);
-        const materiaKey = params.get('materia') || 'sociales'; // Obtiene la key de la URL
+        const materiaKey = params.get('materia') || 'sociales';
         const nombreMateria = materias[materiaKey] || 'Desconocida';
 
         tituloMateria.textContent = `SIMULADOR DE: ${nombreMateria.toUpperCase()}`;
@@ -58,30 +61,32 @@ document.addEventListener('DOMContentLoaded', () => {
         simuladorContainer.style.display = 'none';
         resultadosContainer.style.display = 'none';
 
-        cargarPreguntas(materiaKey);
-
-        // --- Bloque CRÍTICO para el tiempo ---
+        // --- (MODIFICADO) Ajustes de tiempo y # preguntas según materia ---
         let quizDurationSeconds;
         let lobbyTiempoTexto;
 
-        // Verifica si la materia es 'matematicas'
         if (materiaKey === 'matematicas') {
-            quizDurationSeconds = 90 * 60; // ¡90 minutos! (5400 segundos)
+            quizDurationSeconds = 90 * 60; // 90 min
             lobbyTiempoTexto = "1 Hora y 30 Minutos (90 Minutos)";
+            TOTAL_PREGUNTAS_QUIZ = 50;
+        } else if (materiaKey === 'general') { // (NUEVO)
+            quizDurationSeconds = 180 * 60; // 180 min (3 horas)
+            lobbyTiempoTexto = "3 Horas (180 Minutos)";
+            TOTAL_PREGUNTAS_QUIZ = 200; // 200 preguntas
         } else {
-            quizDurationSeconds = 60 * 60; // 60 minutos para las otras (3600 segundos)
+            quizDurationSeconds = 60 * 60; // 60 min
             lobbyTiempoTexto = "1 Hora (60 Minutos)";
+            TOTAL_PREGUNTAS_QUIZ = 50;
         }
 
-        // Asigna el tiempo correcto a la variable global
         tiempoRestanteSeg = quizDurationSeconds;
 
-        // Actualiza el texto en el lobby
         const lobbyTiempoDisplay = document.getElementById('lobby-tiempo');
-        if (lobbyTiempoDisplay) {
-            lobbyTiempoDisplay.textContent = lobbyTiempoTexto;
-        }
-        // --- Fin Bloque CRÍTICO ---
+        if (lobbyTiempoDisplay) lobbyTiempoDisplay.textContent = lobbyTiempoTexto;
+        if (lobbyPreguntasDisplay) lobbyPreguntasDisplay.textContent = TOTAL_PREGUNTAS_QUIZ; // Actualiza # preguntas
+        // --- Fin Modificación ---
+
+        cargarPreguntas(materiaKey); // Llamar DESPUÉS de setear variables
 
         // Listeners
         comenzarBtn.addEventListener('click', iniciarIntento);
@@ -93,21 +98,67 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 4. LÓGICA DE CARGA Y PREPARACIÓN ---
-    function cargarPreguntas(materia) {
-        const url = `DATA/preguntas_${materia}.json`;
-        fetch(url)
-            .then(response => { if (!response.ok) throw new Error('No se encontró archivo.'); return response.json(); })
-            .then(data => {
+    // (MODIFICADO)
+    async function cargarPreguntas(materia) {
+        if (materia === 'general') {
+            // Cargar todas las materias
+            const materiasACargar = ['sociales', 'matematicas', 'lengua', 'ingles'];
+            let todasLasPreguntas = [];
+            let cargaExitosa = true;
+
+            try {
+                // Usamos Promise.all para cargar en paralelo
+                const promesas = materiasACargar.map(m => fetch(`DATA/preguntas_${m}.json`).then(res => res.ok ? res.json() : Promise.reject(`Fallo al cargar ${m}`)));
+                const resultados = await Promise.all(promesas);
+
+                // Concatenar todas las preguntas
+                resultados.forEach(preguntas => {
+                    todasLasPreguntas = todasLasPreguntas.concat(preguntas);
+                });
+
+                if (todasLasPreguntas.length === 0) {
+                    throw new Error("No se cargaron preguntas de ninguna materia.");
+                }
+                preguntasOriginales = todasLasPreguntas;
+
+            } catch (error) {
+                console.error("Error cargando preguntas generales:", error);
+                alert(`Error al cargar las preguntas generales. ${error.message || ''}`);
+                window.location.href = 'index.html';
+                cargaExitosa = false;
+            }
+
+        } else {
+            // Cargar una sola materia
+            const url = `DATA/preguntas_${materia}.json`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('No se encontró archivo.');
+                const data = await response.json();
                 preguntasOriginales = data;
                 if (data.length === 0) { alert(`No hay preguntas para ${materias[materia]}.`); window.location.href = 'index.html'; }
-            })
-            .catch(error => { console.error(error); alert(`Error cargando preguntas de ${materias[materia]}.`); window.location.href = 'index.html'; });
+            } catch (error) {
+                console.error(error);
+                alert(`Error cargando preguntas de ${materias[materia]}.`);
+                window.location.href = 'index.html';
+            }
+        }
     }
 
+
+    // (MODIFICADO)
     function prepararQuiz() {
+        const params = new URLSearchParams(window.location.search);
+        const materiaKey = params.get('materia') || 'sociales';
+
+        // Barajar todas las preguntas disponibles
         const preguntasBarajadas = [...preguntasOriginales].sort(() => Math.random() - 0.5);
-        preguntasQuiz = preguntasBarajadas.slice(0, TOTAL_PREGUNTAS);
-        respuestasUsuario = new Array(TOTAL_PREGUNTAS).fill(null);
+
+        // Tomar la cantidad correcta según la materia
+        preguntasQuiz = preguntasBarajadas.slice(0, TOTAL_PREGUNTAS_QUIZ);
+
+        // Inicializar el array de respuestas del usuario con el tamaño correcto
+        respuestasUsuario = new Array(TOTAL_PREGUNTAS_QUIZ).fill(null);
     }
 
     // --- 5. LÓGICA DEL SIMULADOR ---
@@ -116,30 +167,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (preguntasQuiz.length === 0) { alert("No se cargaron preguntas."); return; }
         lobbyContainer.style.display = 'none';
         simuladorContainer.style.display = 'grid';
-        construirNavegador();
+        construirNavegador(); // Construye según TOTAL_PREGUNTAS_QUIZ
         mostrarPregunta(0);
-        iniciarCronometro(); // Inicia el cronómetro con el tiempo ya establecido en inicializar()
+        iniciarCronometro();
     }
 
     function iniciarCronometro() {
-        // Asegura que el display inicial muestre el tiempo correcto (90 o 60 min)
         const minutosIni = Math.floor(tiempoRestanteSeg / 60);
         const segundosIni = tiempoRestanteSeg % 60;
         cronometroDisplay.textContent = `${minutosIni.toString().padStart(2, '0')}:${segundosIni.toString().padStart(2, '0')}`;
-
-        clearInterval(cronometroInterval); // Limpia si había uno previo
+        clearInterval(cronometroInterval);
         cronometroInterval = setInterval(() => {
             tiempoRestanteSeg--;
             const minutos = Math.floor(tiempoRestanteSeg / 60);
             const segundos = tiempoRestanteSeg % 60;
             cronometroDisplay.textContent = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-            if (tiempoRestanteSeg <= 0) { finalizarIntento(true); } // Finaliza si llega a 0
+            if (tiempoRestanteSeg <= 0) { finalizarIntento(true); }
         }, 1000);
     }
 
+    // (MODIFICADO)
     function construirNavegador() {
         navegadorPreguntas.innerHTML = '';
-        for (let i = 0; i < TOTAL_PREGUNTAS; i++) {
+        // Usa TOTAL_PREGUNTAS_QUIZ
+        for (let i = 0; i < TOTAL_PREGUNTAS_QUIZ; i++) { 
             const btn = document.createElement('button');
             btn.className = 'nav-btn';
             btn.textContent = i + 1;
@@ -148,8 +199,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // (MODIFICADO)
     function mostrarPregunta(indice) {
-        if (indice < 0 || indice >= TOTAL_PREGUNTAS) return;
+        // Usa TOTAL_PREGUNTAS_QUIZ
+        if (indice < 0 || indice >= TOTAL_PREGUNTAS_QUIZ) return; 
         indicePreguntaActual = indice;
         const pregunta = preguntasQuiz[indice];
         preguntaNumero.textContent = `Pregunta ${indice + 1}`;
@@ -163,7 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => seleccionarRespuesta(opcion));
             opcionesContainer.appendChild(btn);
         });
-        siguienteBtn.disabled = (indice === TOTAL_PREGUNTAS - 1);
+        // Usa TOTAL_PREGUNTAS_QUIZ
+        siguienteBtn.disabled = (indice === TOTAL_PREGUNTAS_QUIZ - 1); 
         actualizarNavegadorVisual();
     }
 
@@ -182,8 +236,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // (MODIFICADO)
     function irPreguntaSiguiente() {
-        if (indicePreguntaActual < TOTAL_PREGUNTAS - 1) {
+        // Usa TOTAL_PREGUNTAS_QUIZ
+        if (indicePreguntaActual < TOTAL_PREGUNTAS_QUIZ - 1) { 
             mostrarPregunta(indicePreguntaActual + 1);
         }
     }
@@ -216,36 +272,61 @@ document.addEventListener('DOMContentLoaded', () => {
         calcularResultados();
     }
 
+    // (MODIFICADO)
     function calcularResultados() {
         let correctas = 0, incorrectas = 0, enBlanco = 0, puntaje = 0;
-        for (let i = 0; i < TOTAL_PREGUNTAS; i++) {
+        // Usa TOTAL_PREGUNTAS_QUIZ
+        const puntosPorPregunta = 1000 / TOTAL_PREGUNTAS_QUIZ; // Calcula puntos por pregunta
+
+        for (let i = 0; i < TOTAL_PREGUNTAS_QUIZ; i++) { 
             const respUser = respuestasUsuario[i];
-            const respCorrecta = preguntasQuiz[i].respuesta;
-            if (respUser === null) enBlanco++;
-            else if (respUser === respCorrecta) { correctas++; puntaje += 20; }
-            else incorrectas++;
+            // Asegúrate que preguntasQuiz[i] exista antes de acceder a .respuesta
+            if (preguntasQuiz[i]) { 
+                const respCorrecta = preguntasQuiz[i].respuesta;
+                if (respUser === null) enBlanco++;
+                else if (respUser === respCorrecta) { 
+                    correctas++; 
+                    puntaje += puntosPorPregunta; // Suma puntos por correcta
+                }
+                else incorrectas++;
+            } else {
+                console.error("Error: Pregunta no encontrada en índice", i); // Ayuda a depurar
+                enBlanco++; // O cuenta como en blanco si falta la pregunta
+            }
         }
-        if (puntaje < 0) puntaje = 0;
+        
+        // Redondear puntaje final a entero
+        puntaje = Math.round(puntaje); 
+
+        if (puntaje < 0) puntaje = 0; // Asegurar que no sea negativo (aunque no debería)
+
         puntajeFinalDisplay.textContent = puntaje;
         statsContestadas.textContent = correctas + incorrectas;
         statsCorrectas.textContent = correctas;
         statsIncorrectas.textContent = incorrectas;
         statsEnBlanco.textContent = enBlanco;
-        mostrarRevision();
+
+        mostrarRevision(puntosPorPregunta); // Pasa los puntos por pregunta a la revisión
     }
 
-    function mostrarRevision() {
+    // (MODIFICADO)
+    function mostrarRevision(puntosPorPregunta) {
         revisionContainer.innerHTML = '';
-        preguntasQuiz.forEach((pregunta, i) => {
+        // Usa TOTAL_PREGUNTAS_QUIZ
+        preguntasQuiz.forEach((pregunta, i) => { 
             const respUser = respuestasUsuario[i];
             const respCorrecta = pregunta.respuesta;
             const divRevision = document.createElement('div');
             divRevision.className = 'revision-pregunta';
             let feedbackHTML = '';
+
+             // Redondea los puntos a mostrar
+            const puntosCorrecta = Math.round(puntosPorPregunta);
+
             if (respUser === null) {
                 feedbackHTML = `<p class="respuesta-usuario">No contestada (0 Puntos)</p><div class="feedback incorrecta">RESPUESTA<span>La respuesta correcta era: <strong>${respCorrecta}</strong></span></div>`;
             } else if (respUser === respCorrecta) {
-                feedbackHTML = `<p class="respuesta-usuario">Tu respuesta: ${respUser}</p><div class="feedback correcta">CORRECTA (+20 Puntos)</div>`;
+                feedbackHTML = `<p class="respuesta-usuario">Tu respuesta: ${respUser}</p><div class="feedback correcta">CORRECTA (+${puntosCorrecta} Puntos)</div>`;
             } else {
                 feedbackHTML = `<p class="respuesta-usuario">Tu respuesta: ${respUser}</p><div class="feedback incorrecta">INCORRECTA (0 Puntos)<span>La respuesta correcta era: <strong>${respCorrecta}</strong></span></div>`;
             }
