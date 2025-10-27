@@ -15,6 +15,11 @@
     "nombre": "Querido Capitán"
   },
   {
+    "usuario": "postulante",
+    "contrasena": "postulante",
+    "nombre": "PREE"
+  },
+  {
     "usuario": "michael_arcos",
     "contrasena": "michael_arcos",
     "nombre": "Michael Arcos"
