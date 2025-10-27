@@ -15,42 +15,41 @@ footer { color: #aaa; text-align: center; font-size: 0.85rem; line-height: 1.6; 
 footer p { margin: 4px 0; }
 
 /* --- CONTENIDO PRINCIPAL --- */
-main {
-    flex: 1;
-    padding: 2rem;
-    position: relative;
-    /* === CORRECCIÓN AQUÍ === */
-    display: flex; /* Vuelve a habilitar flexbox */
-    align-items: center; /* Centra verticalmente */
-    justify-content: center; /* Centra horizontalmente */
-    /* Ya no tiene overflow: hidden y body tiene min-height, así que el scroll funcionará si es necesario */
-}
+main { flex: 1; padding: 2rem; position: relative; display: flex; align-items: center; justify-content: center; }
 
 /* --- MARCA DE AGUA --- */
 .marca-de-agua { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; opacity: 0.06; pointer-events: none; }
 .marca-de-agua img { width: 350px; }
 
 /* --- CONTENEDOR DE SELECCIÓN --- */
-.seleccion-container {
-    background-color: white;
-    padding: 2.5rem 3rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 800px;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-    border-top: 5px solid #b22222;
-    /* Quitamos margin: 0 auto; porque flexbox ya lo centra */
-}
-
+.seleccion-container { background-color: white; padding: 2.5rem 3rem; border-radius: 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); width: 100%; max-width: 800px; text-align: center; position: relative; z-index: 1; border-top: 5px solid #b22222; }
 .seleccion-container h1 { font-family: 'Teko', sans-serif; font-size: 2.8rem; margin-bottom: 0.5rem; }
 .seleccion-container p { font-size: 1.1rem; color: #555; margin-bottom: 2rem; }
-.materias-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+/* (MODIFICADO) Ajuste para 5 elementos */
+.materias-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Columnas flexibles */
+    gap: 1.5rem;
+}
+
 .materia-card { display: flex; align-items: center; justify-content: center; padding: 2.5rem; background-color: #f9f9f9; border: 2px solid #eee; border-radius: 10px; text-decoration: none; color: #333; transition: all 0.3s ease; }
 .materia-card h3 { font-family: 'Teko', sans-serif; font-size: 1.8rem; font-weight: 600; }
 .materia-card:hover { background-color: #fff; border-color: #b22222; color: #b22222; transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07); }
+
+/* (NUEVO/OPCIONAL) Estilo para destacar el General */
+.general-card {
+    background-color: #e6f7ff; /* Un fondo azul claro */
+    border-color: #91d5ff;
+}
+.general-card:hover {
+    background-color: #bae7ff;
+    border-color: #1890ff;
+    color: #0050b3;
+}
+/* Si quieres que ocupe todo el ancho cuando son impares (complicado con auto-fit) */
+/* .general-card:last-child:nth-child(odd) { grid-column: 1 / -1; } */
+
 
 /* --- USER INFO Y LOGOUT (Escritorio) --- */
 .user-info-container { display: flex; align-items: center; margin-left: auto; color: #eee; font-size: 0.9rem; }
@@ -88,16 +87,13 @@ main {
     .mobile-only { display: block; }
     .header-titulo h1 { font-size: 1.5rem; }
     .header-titulo h2 { font-size: 0.8rem; }
-    /* Centrar en móvil también si es necesario */
-    main {
-       align-items: center; /* Asegura centrado vertical en tablet/móvil */
-    }
+    main { align-items: center; }
 }
 
 @media (max-width: 600px) {
     header { padding: 10px 15px; }
     .header-logo img { height: 45px; margin-right: 10px;}
     main { padding: 1.5rem 1rem; }
-    .materias-grid { grid-template-columns: 1fr; }
+    .materias-grid { grid-template-columns: 1fr; } /* Asegura una columna en móvil */
     .seleccion-container { padding: 2rem 1.5rem; }
 }
