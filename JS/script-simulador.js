@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalBotones = document.querySelector('.modal-botones');
 
     // --- 2. VARIABLES GLOBALES DEL SIMULADOR ---
-    let preguntasPorMateria = {}; // Objeto para guardar preguntas por materia
+    let preguntasPorMateria = {};
     let preguntasQuiz = [];
     let respuestasUsuario = [];
     let indicePreguntaActual = 0;
@@ -46,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'ingles': 'Inglés',
         'general': 'General (Todas)'
     };
-    // Orden para el modo general
     const ordenGeneral = ['sociales', 'matematicas', 'lengua', 'ingles'];
 
     // --- 3. INICIALIZACIÓN ---
@@ -70,9 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
             lobbyTiempoTexto = "1 Hora y 30 Minutos (90 Minutos)";
             TOTAL_PREGUNTAS_QUIZ = 50;
         } else if (materiaKey === 'general') {
-            quizDurationSeconds = 180 * 60;
+            quizDurationSeconds = 180 * 60; // 3 horas
             lobbyTiempoTexto = "3 Horas (180 Minutos)";
-            TOTAL_PREGUNTAS_QUIZ = 200;
+            TOTAL_PREGUNTAS_QUIZ = 200; // 50 * 4
         } else {
             quizDurationSeconds = 60 * 60;
             lobbyTiempoTexto = "1 Hora (60 Minutos)";
@@ -85,9 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (lobbyTiempoDisplay) lobbyTiempoDisplay.textContent = lobbyTiempoTexto;
         if (lobbyPreguntasDisplay) lobbyPreguntasDisplay.textContent = TOTAL_PREGUNTAS_QUIZ;
 
-        cargarPreguntas(materiaKey); // Llamar DESPUÉS de setear variables
+        cargarPreguntas(materiaKey);
 
-        // Listeners
         comenzarBtn.addEventListener('click', iniciarIntento);
         siguienteBtn.addEventListener('click', irPreguntaSiguiente);
         terminarIntentoBtn.addEventListener('click', confirmarTerminarIntento);
@@ -98,104 +96,91 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. LÓGICA DE CARGA Y PREPARACIÓN ---
     async function cargarPreguntas(materia) {
-        preguntasPorMateria = {}; // Limpiar datos previos
-        let cargaExitosa = true;
+        preguntasPorMateria = {};
+        let materiasACargar = [];
 
         if (materia === 'general') {
-            // Cargar todas las materias definidas en ordenGeneral
-            try {
-                const promesas = ordenGeneral.map(m =>
-                    fetch(`DATA/preguntas_${m}.json`)
-                        .then(res => res.ok ? res.json() : Promise.reject(`Fallo al cargar ${m}`))
-                        .then(data => ({ materia: m, preguntas: data })) // Guardar con su key
-                );
-                const resultados = await Promise.all(promesas);
-
-                resultados.forEach(res => {
-                    if (res.preguntas.length < 50) { // Verificar si hay suficientes preguntas
-                       console.warn(`Advertencia: La materia '${res.materia}' tiene solo ${res.preguntas.length} preguntas. Se usarán todas.`);
-                       //throw new Error(`La materia '${res.materia}' no tiene suficientes preguntas (se necesitan 50).`);
-                    }
-                    preguntasPorMateria[res.materia] = res.preguntas;
-                });
-
-                // Verificar si se cargó al menos una materia
-                 if (Object.keys(preguntasPorMateria).length === 0) {
-                     throw new Error("No se cargaron preguntas de ninguna materia.");
-                 }
-
-
-            } catch (error) {
-                console.error("Error cargando preguntas generales:", error);
-                alert(`Error al cargar las preguntas generales. ${error.message || ''}`);
-                window.location.href = 'index.html';
-                cargaExitosa = false;
-            }
+            materiasACargar = ordenGeneral;
         } else {
-            // Cargar una sola materia
-            const url = `DATA/preguntas_${materia}.json`;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('No se encontró archivo.');
-                const data = await response.json();
-                 if (data.length < TOTAL_PREGUNTAS_QUIZ) { // Verificar cantidad para materias individuales
-                     console.warn(`Advertencia: La materia '${materia}' tiene solo ${data.length} preguntas. Se usarán todas.`);
-                    //throw new Error(`La materia '${materia}' no tiene suficientes preguntas (se necesitan ${TOTAL_PREGUNTAS_QUIZ}).`);
-                }
-                preguntasPorMateria[materia] = data; // Guardar aunque sea una sola
-            } catch (error) {
-                console.error(error);
-                alert(`Error cargando preguntas de ${materias[materia]}. ${error.message || ''}`);
-                window.location.href = 'index.html';
-                cargaExitosa = false;
-            }
+            materiasACargar = [materia];
+        }
+
+        try {
+            const promesas = materiasACargar.map(m =>
+                fetch(`DATA/preguntas_${m}.json`)
+                    .then(res => res.ok ? res.json() : Promise.reject(`Fallo al cargar ${m}`))
+                    .then(data => ({ materia: m, preguntas: data }))
+            );
+            const resultados = await Promise.all(promesas);
+
+            let totalPreguntasCargadas = 0;
+            resultados.forEach(res => {
+                 // Verificar si hay suficientes preguntas por materia para el modo general
+                 if (materia === 'general' && res.preguntas.length < 50) {
+                     console.warn(`Advertencia: La materia '${res.materia}' tiene solo ${res.preguntas.length} preguntas (se necesitan 50 para el modo General). Se usarán todas.`);
+                 }
+                 // Verificar para modo individual
+                 else if (materia !== 'general' && res.preguntas.length < TOTAL_PREGUNTAS_QUIZ) {
+                      console.warn(`Advertencia: La materia '${res.materia}' tiene solo ${res.preguntas.length} preguntas (se necesitan ${TOTAL_PREGUNTAS_QUIZ}). Se usarán todas.`);
+                 }
+                preguntasPorMateria[res.materia] = res.preguntas;
+                totalPreguntasCargadas += res.preguntas.length;
+            });
+
+             if (totalPreguntasCargadas === 0) {
+                 throw new Error("No se cargaron preguntas de ninguna materia relevante.");
+             }
+
+        } catch (error) {
+            console.error("Error cargando preguntas:", error);
+            alert(`Error al cargar las preguntas. ${error.message || ''}`);
+            window.location.href = 'index.html';
         }
     }
 
-
+    // (MODIFICADO PARA ORDENAR POR BLOQUES)
     function prepararQuiz() {
         const params = new URLSearchParams(window.location.search);
         const materiaKey = params.get('materia') || 'sociales';
         preguntasQuiz = []; // Limpiar quiz anterior
 
         if (materiaKey === 'general') {
-            // Barajar y tomar 50 de cada materia en orden
+            TOTAL_PREGUNTAS_QUIZ = 0; // Reiniciar contador
+            // Barajar y tomar 50 de cada materia EN ORDEN
             ordenGeneral.forEach(materia => {
                 if (preguntasPorMateria[materia] && preguntasPorMateria[materia].length > 0) {
                     const preguntasMateriaBarajadas = [...preguntasPorMateria[materia]].sort(() => Math.random() - 0.5);
-                    // Tomar hasta 50, o menos si no hay suficientes
-                    const preguntasSeleccionadas = preguntasMateriaBarajadas.slice(0, 50); 
+                    // Tomar HASTA 50 preguntas
+                    const preguntasSeleccionadas = preguntasMateriaBarajadas.slice(0, 50);
                     preguntasQuiz = preguntasQuiz.concat(preguntasSeleccionadas);
+                    TOTAL_PREGUNTAS_QUIZ += preguntasSeleccionadas.length; // Sumar las realmente añadidas
                 } else {
                     console.warn(`No hay preguntas cargadas para ${materia} en modo general.`);
                 }
             });
-             // Actualizar TOTAL_PREGUNTAS_QUIZ por si alguna materia no tenía 50
-            TOTAL_PREGUNTAS_QUIZ = preguntasQuiz.length; 
-            if (lobbyPreguntasDisplay) lobbyPreguntasDisplay.textContent = TOTAL_PREGUNTAS_QUIZ;
+             // Actualizar display por si no se alcanzaron las 200
+             if (lobbyPreguntasDisplay) lobbyPreguntasDisplay.textContent = TOTAL_PREGUNTAS_QUIZ;
 
         } else {
-            // Tomar 50 (o menos) de la materia única cargada
+             // Modo individual: barajar y tomar hasta TOTAL_PREGUNTAS_QUIZ
              if (preguntasPorMateria[materiaKey] && preguntasPorMateria[materiaKey].length > 0) {
                 const preguntasBarajadas = [...preguntasPorMateria[materiaKey]].sort(() => Math.random() - 0.5);
-                 // Tomar hasta TOTAL_PREGUNTAS_QUIZ (50 o 90) o menos si no hay suficientes
-                preguntasQuiz = preguntasBarajadas.slice(0, TOTAL_PREGUNTAS_QUIZ); 
-                 // Actualizar por si no había suficientes
-                 TOTAL_PREGUNTAS_QUIZ = preguntasQuiz.length;
+                preguntasQuiz = preguntasBarajadas.slice(0, TOTAL_PREGuntas_QUIZ);
+                TOTAL_PREGUNTAS_QUIZ = preguntasQuiz.length; // Ajustar por si hay menos de 50/90
                  if (lobbyPreguntasDisplay) lobbyPreguntasDisplay.textContent = TOTAL_PREGUNTAS_QUIZ;
             } else {
                  console.error(`No hay preguntas cargadas para la materia ${materiaKey}`);
-                 preguntasQuiz = []; // Asegurar que esté vacío si falla
+                 preguntasQuiz = [];
                  TOTAL_PREGUNTAS_QUIZ = 0;
             }
         }
 
-        // Inicializar el array de respuestas del usuario con el tamaño correcto
+        // Inicializar respuestas con el tamaño correcto
         respuestasUsuario = new Array(TOTAL_PREGUNTAS_QUIZ).fill(null);
     }
 
 
-    // --- 5. LÓGICA DEL SIMULADOR --- (Sin cambios significativos, ya usan TOTAL_PREGUNTAS_QUIZ)
+    // --- 5. LÓGICA DEL SIMULADOR ---
     function iniciarIntento() {
         prepararQuiz();
         if (preguntasQuiz.length === 0) { alert("No se cargaron preguntas para iniciar."); return; }
@@ -206,19 +191,32 @@ document.addEventListener('DOMContentLoaded', () => {
         iniciarCronometro();
     }
 
+    // (MODIFICADO PARA FORMATO HH:MM:SS)
     function iniciarCronometro() {
-        const minutosIni = Math.floor(tiempoRestanteSeg / 60);
-        const segundosIni = tiempoRestanteSeg % 60;
-        cronometroDisplay.textContent = `${minutosIni.toString().padStart(2, '0')}:${segundosIni.toString().padStart(2, '0')}`;
-        clearInterval(cronometroInterval);
+        clearInterval(cronometroInterval); // Limpia si había uno previo
+
+        // Función para formatear el tiempo
+        function formatTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Actualizar display inicial
+        cronometroDisplay.textContent = formatTime(tiempoRestanteSeg);
+
+        // Iniciar intervalo
         cronometroInterval = setInterval(() => {
             tiempoRestanteSeg--;
-            const minutos = Math.floor(tiempoRestanteSeg / 60);
-            const segundos = tiempoRestanteSeg % 60;
-            cronometroDisplay.textContent = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-            if (tiempoRestanteSeg <= 0) { finalizarIntento(true); }
+            cronometroDisplay.textContent = formatTime(tiempoRestanteSeg);
+
+            if (tiempoRestanteSeg <= 0) {
+                finalizarIntento(true); // Finaliza si llega a 0
+            }
         }, 1000);
     }
+
 
     function construirNavegador() {
         navegadorPreguntas.innerHTML = '';
@@ -235,12 +233,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (indice < 0 || indice >= TOTAL_PREGUNTAS_QUIZ) return;
         indicePreguntaActual = indice;
         const pregunta = preguntasQuiz[indice];
-        // Asegurarse de que 'pregunta' existe antes de acceder a sus propiedades
         if (!pregunta) {
              console.error(`Intento de mostrar pregunta inválida en índice ${indice}`);
-             // Podrías mostrar un mensaje de error o ir a la siguiente si es posible
              if(indice < TOTAL_PREGUNTAS_QUIZ - 1) irPreguntaSiguiente();
-             else finalizarIntento(false); // Si es la última y falla, terminar
+             else finalizarIntento(false);
              return;
         }
         preguntaNumero.textContent = `Pregunta ${indice + 1}`;
@@ -307,26 +303,24 @@ document.addEventListener('DOMContentLoaded', () => {
         calcularResultados();
     }
 
-    // (MODIFICADO)
     function calcularResultados() {
         let correctas = 0, incorrectas = 0, enBlanco = 0, puntaje = 0;
-        // Calcula puntos por pregunta basado en el total REAL de preguntas cargadas
-        const puntosPorPregunta = TOTAL_PREGUNTAS_QUIZ > 0 ? (1000 / TOTAL_PREGUNTAS_QUIZ) : 0; 
+        const puntosPorPregunta = TOTAL_PREGUNTAS_QUIZ > 0 ? (1000 / TOTAL_PREGUNTAS_QUIZ) : 0;
 
         for (let i = 0; i < TOTAL_PREGUNTAS_QUIZ; i++) {
             const respUser = respuestasUsuario[i];
-            if (preguntasQuiz[i]) { // Verifica que la pregunta exista
+            if (preguntasQuiz[i]) {
                 const respCorrecta = preguntasQuiz[i].respuesta;
                 if (respUser === null) enBlanco++;
                 else if (respUser === respCorrecta) { correctas++; puntaje += puntosPorPregunta; }
                 else incorrectas++;
             } else {
                  console.error("Error: Pregunta no encontrada en índice", i, "durante el cálculo.");
-                 enBlanco++; // Contar como en blanco si falta
+                 enBlanco++;
             }
         }
 
-        puntaje = Math.round(puntaje); // Redondear puntaje final
+        puntaje = Math.round(puntaje);
         if (puntaje < 0) puntaje = 0;
 
         puntajeFinalDisplay.textContent = puntaje;
@@ -338,7 +332,6 @@ document.addEventListener('DOMContentLoaded', () => {
         mostrarRevision(puntosPorPregunta);
     }
 
-    // (MODIFICADO)
     function mostrarRevision(puntosPorPregunta) {
         revisionContainer.innerHTML = '';
         preguntasQuiz.forEach((pregunta, i) => {
@@ -347,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const divRevision = document.createElement('div');
             divRevision.className = 'revision-pregunta';
             let feedbackHTML = '';
-            const puntosCorrecta = Math.round(puntosPorPregunta); // Puntos redondeados a mostrar
+            const puntosCorrecta = Math.round(puntosPorPregunta);
 
             if (respUser === null) {
                 feedbackHTML = `<p class="respuesta-usuario">No contestada (0 Puntos)</p><div class="feedback incorrecta">RESPUESTA<span>La respuesta correcta era: <strong>${respCorrecta}</strong></span></div>`;
